@@ -14,4 +14,6 @@ export default {
     Footer,
   },
 };
+//deneme
 </script>
+
