@@ -16,7 +16,7 @@
         @select="handleSelect"
       >
         <el-menu-item index="0">
-          <img src="@/assets/LOGO.png" width="130" class="m-2" alt="" />
+          <img src="@/assets/logo.png" width="130" class="m-2" alt="" />
         </el-menu-item>
         <div class="flex-grow" />
         <el-menu-item index="/">Anasayfa</el-menu-item>
@@ -55,7 +55,7 @@
         @select="handleSelect"
       >
         <el-menu-item index="0">
-          <img src="@/assets/LOGO.png" width="100" class="m-2" alt="" />
+          <img src="@/assets/logo.png" width="100" class="m-2" alt="" />
         </el-menu-item>
         <div class="flex-grow" />
         <el-sub-menu index="/" style="border-bottom: none !important">
