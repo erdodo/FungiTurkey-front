@@ -28,7 +28,7 @@
         <el-menu-item index="/sponsor">Sponsorlar</el-menu-item>
         <el-menu-item index="/magaza">Market</el-menu-item>
         <el-menu-item index="/iletisim">İletişim</el-menu-item>
-        <el-sub-menu>
+        <el-sub-menu v-if="token">
           <template #title>Profil</template>
           <el-menu-item index="/profil"><span class="text-dark">Bilgilerim</span></el-menu-item>
           <el-menu-item index="/profil/blog">Blog Yorumlarım</el-menu-item>
@@ -36,6 +36,7 @@
           <el-menu-item index="/profil/kayit">Kayıtlarım</el-menu-item>
           <el-menu-item index="/profil/cikis">Çıkış</el-menu-item>
         </el-sub-menu>
+        <el-menu-item v-else index="/giris">Giriş Yap</el-menu-item>
       </el-menu>
       <!-- /main nav -->
     </div>
@@ -70,7 +71,7 @@
           <el-menu-item index="/sponsor">Sponsorlar</el-menu-item>
           <el-menu-item index="/magaza">Market</el-menu-item>
           <el-menu-item index="/iletisim">İletişim</el-menu-item>
-          <el-sub-menu index="11-4">
+          <el-sub-menu v-if="token">
             <template #title class="text-dark">Profil</template>
             <el-menu-item index="/profil">Bilgilerim</el-menu-item>
             <el-menu-item index="/profil/blog">Blog Yorumlarım</el-menu-item>
@@ -78,6 +79,7 @@
             <el-menu-item index="/profil/kayit">Kayıtlarım</el-menu-item>
             <el-menu-item index="/profil/cikis">Çıkış</el-menu-item>
           </el-sub-menu>
+          <el-menu-item v-else index="/giris">Giriş Yap</el-menu-item>
         </el-sub-menu>
       </el-menu>
       <!-- /main nav -->
@@ -90,6 +92,7 @@ export default {
   data() {
     return {
       desktop: true,
+      token: localStorage.getItem("token"),
     };
   },
   mounted() {

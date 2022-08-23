@@ -2,6 +2,16 @@ import { createRouter, createWebHistory } from "vue-router";
 
 const routes = [
   {
+    path: "/giris",
+    name: "giris",
+    component: () => import("@/views/login/login.vue"),
+  },
+  {
+    path: "/uyeol",
+    name: "uyeol",
+    component: () => import("@/views/login/register.vue"),
+  },
+  {
     path: "/hakkimizda",
     name: "Hakkımızda",
     component: () => import("@/views/Hakkimizda.vue"),
