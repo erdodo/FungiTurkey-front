@@ -20,5 +20,6 @@ yarn build
 yarn lint
 ```
 deneme
+merhaba deneme
 ### Customize configuration
 See [Configuration Reference](https://cli.vuejs.org/config/).
