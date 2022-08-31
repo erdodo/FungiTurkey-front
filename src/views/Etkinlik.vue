@@ -22,45 +22,59 @@
               <div
                 class="w-100 image-card rounded cursor-pointer"
                 @click="modalData = !modalData"
-                :style="{ background: 'url(' + ImgBase + a.Image + ')' }"
+                :style="{ background: 'url(' + ImgBase + a.image + ')' }"
               ></div>
-              <h3 class="mt-3">{{ a.Title }}</h3>
+              <h3 class="mt-3">{{ a.title }}</h3>
               <h5>
-                Son Kayıt: <a class="text-warning">{{ a.LastRecordDate }}</a>
+                Son Kayıt: <a class="text-warning">{{ a.last_record_date }}</a>
               </h5>
               <div class="">
                 <router-link
-                  :to="'/etkinlik/' + a.id + '-' + a.Title.replace(/ /g, '-')"
+                  :to="'/etkinlik/' + a.id + '-' + a.title.replace(/ /g, '-')"
                   class="btn btn-warning mx-2 text-white"
                   >Devamını Oku</router-link
                 >
-                <button class="btn btn-outline-warning mx-2">Giriş Yap</button>
+                <button v-if="a.status_record == 1 && !getToken" class="btn btn-outline-warning mx-2" @click="login()">
+                  Giriş Yap
+                </button>
+                <button v-if="a.status_record == 1 && getToken" class="btn btn-outline-warning mx-2">Kayıt</button>
               </div>
             </div>
           </div>
         </template>
       </div>
     </div>
+    <login :loginState="loginState"></login>
   </div>
 </template>
 
 <script>
 import axios from "axios";
+import { mapGetters } from "vuex";
+import login from "./login/login.vue";
 export default {
+  components: { login },
   data() {
     return {
       activity: [],
       modalData: false,
+      loginState: 0,
     };
   },
   mounted() {
     this.getData();
   },
+  computed: {
+    ...mapGetters(["getToken"]),
+  },
   methods: {
     getData() {
-      axios.post("fungiturkey/Activity").then((response) => {
+      axios.post("fungitu2_fungiturkey/Activity").then((response) => {
         this.activity = response.data.data;
       });
+    },
+    login() {
+      this.loginState++;
     },
   },
 };

@@ -61,10 +61,10 @@ export default {
     getData() {
       let params = {
         filter: {
-          token: "0",
+          token: this.$store.getters.getToken,
         },
       };
-      axios.post("Simple/users", params).then((res) => {
+      axios.post("fungitu2_Simple/users", params).then((res) => {
         this.profile = res.data.data[0];
       });
     },

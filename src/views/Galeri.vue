@@ -22,9 +22,9 @@
               <div
                 class="w-100 image-card rounded cursor-pointer"
                 @click="modalData = !modalData"
-                :style="{ background: 'url(' + ImgBase + a.Image + ')' }"
+                :style="{ background: 'url(' + ImgBase + a.image + ')' }"
               ></div>
-              <label class="mt-3">{{ a.Title }}</label>
+              <label class="mt-3">{{ a.title }}</label>
             </div>
           </div>
         </template>
@@ -50,7 +50,7 @@ export default {
   },
   methods: {
     getData() {
-      axios.post("fungiturkey/Galery").then((response) => {
+      axios.post("fungitu2_fungiturkey/Galery").then((response) => {
         this.galery = response.data.data;
       });
     },

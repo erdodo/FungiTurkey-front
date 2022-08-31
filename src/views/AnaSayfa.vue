@@ -4,18 +4,18 @@
       <vueper-slide
         v-for="(slide, i) in slides"
         :key="i"
-        :title="slide.Title"
-        :image="ImgBase + slide.Image"
-        :content="slide.Content"
+        :title="slide.title"
+        :image="ImgBase + slide.image"
+        :content="slide.content"
       >
         <template #content>
           <div class="slider-content">
             <div class="row justify-content-md-center">
               <div class="col-11 col-sm-9 col-md-7">
-                <h1 class="display-4">{{ slide.Title }}</h1>
-                <p class="h5 text-white m-0 p-0">{{ slide.Content }}</p>
-                <router-link :to="slide.ButtonHref" class="btn btn-outline-warning rounded-pill mt-2">
-                  {{ slide.ButtonTitle }}
+                <h1 class="display-4">{{ slide.title }}</h1>
+                <p class="h5 text-white m-0 p-0">{{ slide.content }}</p>
+                <router-link :to="slide.button_href" class="btn btn-outline-warning rounded-pill mt-2">
+                  {{ slide.button_title }}
                 </router-link>
               </div>
             </div>
@@ -42,7 +42,7 @@ export default {
   },
   methods: {
     getData() {
-      axios.post("fungiturkey/Slider").then((response) => {
+      axios.post("fungitu2_fungiturkey/Slider").then((response) => {
         this.slides = response.data.data;
         console.log(this.slides);
       });

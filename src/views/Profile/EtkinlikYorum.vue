@@ -19,10 +19,10 @@
       <template v-for="c in comments" :key="c">
         <a class="card p-3 my-1" :href="'/etkinlik/' + c.ActivityId + '-' + 'Yorum-yapılan-Etkinlik'">
           <div class="d-flex justify-content-between">
-            <h5 class="m-0 p-0">{{ c.Name }} {{ c.Surname }}</h5>
+            <h5 class="m-0 p-0">{{ c.name }} {{ c.surname }}</h5>
             <p class="text-warning">{{ dateTimeParser(c.added_date) }}</p>
           </div>
-          <p>{{ c.Comment }}</p>
+          <p>{{ c.comment }}</p>
         </a>
       </template>
     </div>
@@ -47,7 +47,7 @@ export default {
           own_id: "1",
         },
       };
-      axios.post("fungiturkey/ActivityComment", params).then((response) => {
+      axios.post("fungitu2_fungiturkey/ActivityComment", params).then((response) => {
         this.comments = response.data.data;
       });
     },

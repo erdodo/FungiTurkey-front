@@ -18,11 +18,11 @@
       <div class="row">
         <template v-for="a in about" :key="a">
           <div class="col-12 col-md-6">
-            <h2>{{ a.Title }}</h2>
+            <h2>{{ a.title }}</h2>
             <p>
-              {{ a.Content }}
+              {{ a.content }}
             </p>
-            <img :src="ImgBase + a.Image" alt="" class="w-100" />
+            <img :src="ImgBase + a.image" alt="" class="w-100" />
           </div>
         </template>
       </div>
@@ -43,7 +43,7 @@ export default {
   },
   methods: {
     getData() {
-      axios.post("fungiturkey/About").then((response) => {
+      axios.post("fungitu2_fungiturkey/About").then((response) => {
         this.about = response.data.data;
       });
     },

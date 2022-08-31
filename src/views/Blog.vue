@@ -19,11 +19,11 @@
         <template v-for="a in blog" :key="a">
           <div class="col-12 col-sm-6 col-md-4">
             <div class="p-2 text-center">
-              <div :style="{ background: 'url(' + ImgBase + a.Image + ')' }" class="image-card rounded"></div>
-              <h4 class="mt-3">{{ a.Title }}</h4>
-              <span class="text-info"> {{ dateTimeParser(a.Eklenme) }} </span>
+              <div :style="{ background: 'url(' + ImgBase + a.image + ')' }" class="image-card rounded"></div>
+              <h4 class="mt-3">{{ a.title }}</h4>
+              <span class="text-info"> {{ dateTimeParser(a.added_date) }} </span>
             </div>
-            <router-link :to="'/blog/' + a.id + '-' + a.Title.replace(/ /g, '-')" class="w-100 btn btn-outline-warning"
+            <router-link :to="'/blog/' + a.id + '-' + a.title.replace(/ /g, '-')" class="w-100 btn btn-outline-warning"
               >Devamını Oku</router-link
             >
           </div>
@@ -46,7 +46,7 @@ export default {
   },
   methods: {
     getData() {
-      axios.post("fungiturkey/Blog").then((response) => {
+      axios.post("fungitu2_fungiturkey/Blog").then((response) => {
         this.blog = response.data.data;
       });
     },

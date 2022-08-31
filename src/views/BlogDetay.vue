@@ -16,20 +16,20 @@
     </section>
 
     <div class="container mb-5">
-      <img :src="ImgBase + blog.Image" alt="" class="img-fluid rounded w-100" />
-      <h2 class="mt-4">{{ blog.Title }}</h2>
+      <img :src="ImgBase + blog.image" alt="" class="img-fluid rounded w-100" />
+      <h2 class="mt-4">{{ blog.title }}</h2>
 
-      <p v-text="blog.Content"></p>
+      <p v-text="blog.content"></p>
     </div>
     <div class="container mb-5">
       <h4>Yorumlar</h4>
       <template v-for="c in comments" :key="c">
         <div class="card p-3 my-1">
           <div class="d-flex justify-content-between">
-            <h5 class="m-0 p-0">{{ c.Name }} {{ c.Surname }}</h5>
+            <h5 class="m-0 p-0">{{ c.name }} {{ c.surname }}</h5>
             <p class="text-warning">{{ dateTimeParser(c.added_date) }}</p>
           </div>
-          <p>{{ c.Comment }}</p>
+          <p>{{ c.comment }}</p>
         </div>
       </template>
     </div>
@@ -52,17 +52,17 @@ export default {
   },
   methods: {
     getData() {
-      axios.post("fungiturkey/Blog/" + this.$route.params.id + "/get").then((response) => {
+      axios.post("fungitu2_fungiturkey/Blog/" + this.$route.params.id + "/get").then((response) => {
         this.blog = response.data.data;
       });
     },
     getComment() {
       let params = {
         filter: {
-          BlogId: this.$route.params.id,
+          blog_id: this.$route.params.id,
         },
       };
-      axios.post("fungiturkey/BlogComment", params).then((response) => {
+      axios.post("fungitu2_fungiturkey/BlogComment", params).then((response) => {
         this.comments = response.data.data;
       });
     },

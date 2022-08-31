@@ -6,9 +6,9 @@
           <div class="p-2 text-center">
             <div
               class="w-100 image-modal-card rounded cursor-pointer"
-              :style="{ background: 'url(' + ImgBase + item.Image + ')' }"
+              :style="{ background: 'url(' + ImgBase + item.image + ')' }"
             ></div>
-            <label class="mt-3">{{ item.Title }}</label>
+            <label class="mt-3">{{ item.title }}</label>
           </div>
         </el-carousel-item>
       </el-carousel>

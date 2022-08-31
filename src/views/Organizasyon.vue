@@ -19,10 +19,10 @@
         <template v-for="a in services" :key="a">
           <div class="col-12 col-sm-6 col-md-4">
             <div class="p-2 text-center">
-              <img :src="ImgBase + a.Image" alt="" class="w-100 rounded" />
-              <h4 class="mt-3">{{ a.Title }}</h4>
+              <img :src="ImgBase + a.image" alt="" class="w-100 rounded" />
+              <h4 class="mt-3">{{ a.title }}</h4>
               <p>
-                {{ a.Content }}
+                {{ a.content }}
               </p>
             </div>
           </div>
@@ -45,7 +45,7 @@ export default {
   },
   methods: {
     getData() {
-      axios.post("fungiturkey/Services").then((response) => {
+      axios.post("fungitu2_fungiturkey/Services").then((response) => {
         this.services = response.data.data;
       });
     },

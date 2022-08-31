@@ -1,6 +1,5 @@
 <template>
-  <header class="fixed-top">
-    <transition name="fade"></transition>
+  <header class="fixed-top head">
     <div class="px-5" v-if="desktop">
       <!-- main nav -->
       <el-menu
@@ -28,15 +27,15 @@
         <el-menu-item index="/sponsor">Sponsorlar</el-menu-item>
         <el-menu-item index="/magaza">Market</el-menu-item>
         <el-menu-item index="/iletisim">İletişim</el-menu-item>
-        <el-sub-menu v-if="token">
+        <el-sub-menu v-if="getToken">
           <template #title>Profil</template>
           <el-menu-item index="/profil"><span class="text-dark">Bilgilerim</span></el-menu-item>
-          <el-menu-item index="/profil/blog">Blog Yorumlarım</el-menu-item>
-          <el-menu-item index="/profil/etkinlik">Etkinlik Yorumlarım</el-menu-item>
-          <el-menu-item index="/profil/kayit">Kayıtlarım</el-menu-item>
-          <el-menu-item index="/profil/cikis">Çıkış</el-menu-item>
+          <el-menu-item index="/profil/blog"><span class="text-dark">Blog Yorumlarım</span></el-menu-item>
+          <el-menu-item index="/profil/etkinlik"><span class="text-dark">Etkinlik Yorumlarım</span></el-menu-item>
+          <el-menu-item index="/profil/kayit"><span class="text-dark">Kayıtlarım</span></el-menu-item>
+          <el-menu-item :index="$route.path" @click="cikis()"><span class="text-dark">Çıkış</span></el-menu-item>
         </el-sub-menu>
-        <el-menu-item v-else index="/giris">Giriş Yap</el-menu-item>
+        <el-menu-item v-else :index="$route.path" @click="uyeol()">Üye Ol</el-menu-item>
       </el-menu>
       <!-- /main nav -->
     </div>
@@ -71,35 +70,51 @@
           <el-menu-item index="/sponsor">Sponsorlar</el-menu-item>
           <el-menu-item index="/magaza">Market</el-menu-item>
           <el-menu-item index="/iletisim">İletişim</el-menu-item>
-          <el-sub-menu v-if="token">
+          <el-sub-menu v-if="getToken">
             <template #title class="text-dark">Profil</template>
             <el-menu-item index="/profil">Bilgilerim</el-menu-item>
             <el-menu-item index="/profil/blog">Blog Yorumlarım</el-menu-item>
             <el-menu-item index="/profil/etkinlik">Etkinlik Yorumlarım</el-menu-item>
             <el-menu-item index="/profil/kayit">Kayıtlarım</el-menu-item>
-            <el-menu-item index="/profil/cikis">Çıkış</el-menu-item>
+            <el-menu-item :index="$route.path" @click="cikis()">Çıkış</el-menu-item>
           </el-sub-menu>
-          <el-menu-item v-else index="/giris">Giriş Yap</el-menu-item>
+          <el-menu-item v-else :index="$route.path" @click="uyeol()">Üye Ol</el-menu-item>
         </el-sub-menu>
       </el-menu>
       <!-- /main nav -->
     </div>
+    <register :registerState="registerState"></register>
   </header>
 </template>
 
 <script>
+import Register from "../login/register.vue";
+import { mapGetters } from "vuex";
 export default {
+  components: { Register },
   data() {
     return {
       desktop: true,
       token: localStorage.getItem("token"),
+      registerState: 0,
     };
   },
+  computed: {
+    ...mapGetters(["getToken"]),
+  },
   mounted() {
-    this.desktop = window.innerWidth > 1240 ? true : false;
+    this.desktop = window.innerWidth > 1295 ? true : false;
     window.addEventListener("resize", () => {
-      this.desktop = window.innerWidth > 1240 ? true : false;
+      this.desktop = window.innerWidth > 1295 ? true : false;
     });
+  },
+  methods: {
+    uyeol() {
+      this.registerState++;
+    },
+    cikis() {
+      this.$store.commit("setToken", "");
+    },
   },
 };
 </script>
@@ -108,12 +123,15 @@ export default {
 .flex-grow {
   flex-grow: 1;
 }
-.sticky-header {
-  background: rgba(0, 0, 0, 0.9);
+.head {
+  background-image: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.01));
 }
 @media screen and (max-width: 768px) {
   .mobil-header {
     background: rgba(0, 0, 0, 0.9);
   }
+}
+.el-menu-item {
+  font-size: 16px !important;
 }
 </style>

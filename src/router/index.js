@@ -2,16 +2,6 @@ import { createRouter, createWebHistory } from "vue-router";
 
 const routes = [
   {
-    path: "/giris",
-    name: "giris",
-    component: () => import("@/views/login/login.vue"),
-  },
-  {
-    path: "/uyeol",
-    name: "uyeol",
-    component: () => import("@/views/login/register.vue"),
-  },
-  {
     path: "/hakkimizda",
     name: "Hakkımızda",
     component: () => import("@/views/Hakkimizda.vue"),
@@ -91,6 +81,11 @@ const routes = [
     path: "/admin/create/:database/:table_name",
     name: "Create",
     component: () => import("@/views/admin/create.vue"),
+  },
+  {
+    path: "/admin",
+    name: "Admin",
+    component: () => import("@/views/admin/home.vue"),
   },
 ];
 

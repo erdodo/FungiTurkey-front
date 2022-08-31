@@ -66,8 +66,8 @@ import axios from "axios";
 export default {
   data() {
     return {
-      Image: null,
-      Title: null,
+      image: null,
+      title: null,
       columns: [],
       prm: {},
     };
@@ -86,7 +86,7 @@ export default {
 
       for (const [key, val] of Object.entries(this.columns)) {
         if (val.type == "file") {
-          formData.append("Image", this.$refs.Image?.[0]?.files[0]);
+          formData.append("image", this.$refs.image?.[0]?.files[0]);
         } else {
           formData.append(key, this.prm[key] == undefined ? "" : this.prm[key]);
         }

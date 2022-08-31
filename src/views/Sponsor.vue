@@ -20,9 +20,9 @@
           <div class="col-12 col-sm-6 col-md-4 p-2">
             <div class="border-right border-left">
               <a class="p-2 text-center sponsor-card" :href="a.WebSite" target="_blank">
-                <div :style="{ background: 'url(' + ImgBase + a.Image + ')' }" class="sponsor-image rounded"></div>
+                <div :style="{ background: 'url(' + ImgBase + a.image + ')' }" class="sponsor-image rounded"></div>
                 <div class="">
-                  <h4 class="mt-3 text-dark">{{ a.Title }}</h4>
+                  <h4 class="mt-3 text-dark">{{ a.title }}</h4>
                   <a>{{ a.WebSite }} </a>
                 </div>
               </a>
@@ -47,7 +47,7 @@ export default {
   },
   methods: {
     getData() {
-      axios.post("fungiturkey/Sponsor").then((response) => {
+      axios.post("fungitu2_fungiturkey/Sponsor").then((response) => {
         this.sponsor = response.data.data;
       });
     },

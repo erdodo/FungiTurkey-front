@@ -1,32 +1,67 @@
 <template>
   <div>
-    <section class="single-page-header mb-5" style="background: url('/_assets/HeaderBack.jpeg')">
-      <div class="container">
-        <div class="row">
-          <div class="col-md-12">
-            <h2>Giriş</h2>
-            <ol class="breadcrumb header-bradcrumb justify-content-center">
-              <li class="breadcrumb-item"><router-link to="/" class="text-white">Ana Sayfa</router-link></li>
-              <li class="breadcrumb-item active" aria-current="page">Blog</li>
-            </ol>
-          </div>
-        </div>
-      </div>
-    </section>
+    <el-dialog v-model="state" title="Giriş Yap" width="30%" :before-close="handleClose" draggable>
+      <label for="">Eposta:</label>
+      <el-input v-model="email" placeholder="Eposta adresiniz"></el-input>
+      <label class="mt-3" for="">Şifre:</label>
+      <el-input v-model="password" type="password" placeholder="Şifreniz" show-password></el-input>
 
-    <div class="container">
-      <div class="row"></div>
-    </div>
+      <template #footer>
+        <span class="dialog-footer">
+          <el-button type="primary" @click="giris()" class="w-100">Giriş</el-button>
+        </span>
+      </template>
+    </el-dialog>
   </div>
 </template>
 
 <script>
+import axios from "axios";
+import { ElNotification } from "element-plus";
 export default {
+  props: ["loginState"],
   data() {
-    return {};
+    return {
+      state: false,
+      email: "",
+      password: "",
+    };
   },
   mounted() {},
-  methods: {},
+  methods: {
+    giris() {
+      axios
+        .post("/login", {
+          email: this.email,
+          password: this.password,
+        })
+        .then((res) => {
+          if (res.data.status == "success") {
+            ElNotification({
+              title: "Başarılı",
+              message: res.data.message,
+              type: "success",
+            });
+
+            this.$store.commit("setToken", res.data.token);
+            this.state = false;
+            this.email = "";
+            this.password = "";
+          } else {
+            ElNotification({
+              title: "Hata",
+              message: res.data.message,
+              type: "error",
+            });
+          }
+        });
+    },
+  },
+  watch: {
+    loginState() {
+      this.state = true;
+    },
+  },
 };
 </script>
 

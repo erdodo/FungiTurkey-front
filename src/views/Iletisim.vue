@@ -123,7 +123,7 @@ export default {
   },
   methods: {
     getData() {
-      axios.post("fungiturkey/Contact/first").then((response) => {
+      axios.post("fungitu2_fungiturkey/Contact/first").then((response) => {
         this.contact = response.data.data;
       });
     },
@@ -134,7 +134,7 @@ export default {
       formData.append("subject", this.subject);
       formData.append("message", this.message);
 
-      axios.post("Feedbacks/store", formData);
+      axios.post("fungitu2_fungiturkey/Feedbacks/store", formData);
     },
   },
 };
