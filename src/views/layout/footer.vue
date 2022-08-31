@@ -4,7 +4,7 @@
     v-if="$route.path != '/'"
   >
     <h5 class="mr-2">&copy; Copyright {{ new Date().getFullYear() }}. Tüm hakları saklıdır.</h5>
-    <h6>Geliştirici <a href="https://www.linkedin.com/in/erdogan-yesil-7b7263b3/" target="_blank">Erdoğan Yeşil.</a></h6>
+    <h6>Geliştirici <a href="https://www.linkedin.com/in/erdogan-yesil-7b7263b3/" target="_blank">Erdoğan Yeşil..</a></h6>
   </div>
 </template>
 
