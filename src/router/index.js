@@ -47,6 +47,11 @@ const routes = [
     component: () => import("@/views/Organizasyon.vue"),
   },
   {
+    path: "/organizasyon/:id",
+    name: "OrganizasyonDetay",
+    component: () => import("@/views/OrganizasyonDetay.vue"),
+  },
+  {
     path: "/magaza",
     name: "Magaza",
     component: () => import("@/views/Shop.vue"),
@@ -86,6 +91,14 @@ const routes = [
     path: "/admin",
     name: "Admin",
     component: () => import("@/views/admin/home.vue"),
+  },
+  {
+    path: "/:pathMatch(.*)*",
+    name: "404",
+    component: () => import("@/views/404.vue"),
+    meta: {
+      title: "404",
+    },
   },
 ];
 

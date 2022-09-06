@@ -10,7 +10,46 @@
   <title>
     <%= htmlWebpackPlugin.options.title %>
   </title>
+  <style>
+    #first-load {
+      width: 100vw;
+      height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
 
+    @-webkit-keyframes rotation {
+      0% {
+        transform: rotate(0deg);
+      }
+
+      100% {
+        transform: rotate(360deg);
+      }
+    }
+
+    @keyframes rotation {
+      0% {
+        transform: rotate(0deg);
+      }
+
+      100% {
+        transform: rotate(360deg);
+      }
+    }
+
+    .loader-1 {
+      width: 48px;
+      height: 48px;
+      border: 5px solid #FFF;
+      border-bottom-color: rgb(208, 167, 7);
+      border-radius: 50%;
+      display: inline-block;
+      -webkit-animation: rotation 1s linear infinite;
+      animation: rotation 1s linear infinite;
+    }
+  </style>
 
 
   <!-- Themefisher Icon font -->
@@ -47,11 +86,12 @@
 </head>
 
 <body class="p-0 m-0">
+  <div id="first-load"><span class="loader-1"> </span></div>
   <noscript>
     <strong>We're sorry but <%= htmlWebpackPlugin.options.title %> doesn't work properly without JavaScript enabled.
         Please enable it to continue.</strong>
   </noscript>
-  <div id="app"></div>
+  <div id="app" style="display: none"></div>
   <!-- built files will be auto injected -->
 </body>
 

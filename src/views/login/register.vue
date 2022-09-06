@@ -1,9 +1,31 @@
 <template>
   <div>
-    <el-dialog v-model="state" title="Üye Ol" width="30%" top="5vh" :before-close="handleClose">
+    <el-dialog v-model="state" title="Üye Ol" width="400px" top="5vh" :before-close="handleClose">
       <div v-for="r in registerData" :key="r">
         <label class="mt-2 mb-0">{{ r.display }}:</label>
-        <el-input v-model="params[r.name]" :placeholder="r.display"></el-input>
+        <el-input
+          v-if="r.name == 'phone'"
+          v-mask="'+90(###) ### ## ##'"
+          v-model="params[r.name]"
+          size="large"
+          :placeholder="r.display"
+        ></el-input>
+        <el-input
+          v-else-if="r.name == 'password'"
+          type="password"
+          v-model="params[r.name]"
+          size="large"
+          :placeholder="r.display"
+        ></el-input>
+        <el-input
+          v-else-if="r.name == 'email'"
+          @keyup="validateEmail()"
+          v-model="params[r.name]"
+          size="large"
+          :placeholder="r.display"
+        ></el-input>
+        <el-input v-else v-model="params[r.name]" size="large" :placeholder="r.display"></el-input>
+        <label class="text-danger"> {{ msg[r.name] }} </label>
       </div>
 
       <template #footer>
@@ -21,7 +43,11 @@
 <script>
 import axios from "axios";
 import login from "./login.vue";
+import { ElNotification } from "element-plus";
+import { mask } from "vue-the-mask";
+
 export default {
+  directives: { mask },
   components: { login },
   props: ["registerState"],
   data() {
@@ -30,6 +56,7 @@ export default {
       loginState: 0,
       registerData: {},
       params: {},
+      msg: {},
     };
   },
   mounted() {
@@ -40,12 +67,29 @@ export default {
       this.loginState++;
     },
     register() {
-      axios.post("/register", this.params);
+      axios.post("/register", this.params).then((res) => {
+        if (res.data.status == "success") {
+          ElNotification({
+            title: "Başarılı",
+            message: "Kayıt başarıyla gönderildi.",
+            type: "success",
+          });
+          this.state = false;
+          this.login();
+        }
+      });
     },
     getCreateData() {
       axios.post("/fungitu2_Simple/users/create").then((res) => {
         this.registerData = res.data.columns;
       });
+    },
+    validateEmail() {
+      if (!/^\w+([\\.-]?\w+)*@\w+([\\.-]?\w+)*(\.\w{2,3})+$/.test(this.params.email)) {
+        this.msg["email"] = "Epostanızı kontrol ediniz.";
+      } else {
+        this.msg["email"] = "";
+      }
     },
   },
   watch: {

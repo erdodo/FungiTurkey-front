@@ -14,7 +14,7 @@
       </div>
     </section>
 
-    <div class="container">
+    <div class="container" v-loading="load" style="min-height: 300px">
       <div class="row">
         <template v-for="a in sponsor" :key="a">
           <div class="col-12 col-sm-6 col-md-4 p-2">
@@ -23,7 +23,7 @@
                 <div :style="{ background: 'url(' + ImgBase + a.image + ')' }" class="sponsor-image rounded"></div>
                 <div class="">
                   <h4 class="mt-3 text-dark">{{ a.title }}</h4>
-                  <a>{{ a.WebSite }} </a>
+                  <a :href="a.web_site">{{ a.web_site }} </a>
                 </div>
               </a>
             </div>
@@ -36,10 +36,12 @@
 
 <script>
 import axios from "axios";
+import dateTimeParser from "@/hooks/dateTimeParser";
 export default {
   data() {
     return {
       sponsor: [],
+      load: true,
     };
   },
   mounted() {
@@ -47,21 +49,13 @@ export default {
   },
   methods: {
     getData() {
+      this.load = true;
       axios.post("fungitu2_fungiturkey/Sponsor").then((response) => {
         this.sponsor = response.data.data;
+        this.load = false;
       });
     },
-    dateTimeParser(data) {
-      var date = new Date(data);
-      var day = date.getDate() < 10 ? "0" + date.getDate() : date.getDate();
-      var month = date.getMonth() + 1 < 10 ? "0" + (date.getMonth() + 1) : date.getMonth() + 1;
-      var year = date.getFullYear();
-      var hour = date.getHours() < 10 ? "0" + date.getHours() : date.getHours();
-      var min = date.getMinutes() < 10 ? "0" + date.getMinutes() : date.getMinutes();
-      var sec = date.getSeconds() < 10 ? "0" + date.getSeconds() : date.getSeconds();
-      var time = day + "/" + month + "/" + year + " " + hour + ":" + min + ":" + sec;
-      return time;
-    },
+    dateTimeParser,
   },
 };
 </script>

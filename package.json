@@ -13,6 +13,7 @@
     "element-plus": "^2.2.13",
     "vue": "^3.0.0",
     "vue-router": "^4.0.0-0",
+    "vue-the-mask": "^0.11.1",
     "vueperslides": "^3.4.2",
     "vuex": "^4.0.0-0"
   },

@@ -1,7 +1,7 @@
 <template>
-  <el-dialog v-model="centerDialogVisible" title="Galeri" width="100%" style="background: transparent" center fullscreen>
+  <el-dialog v-model="centerDialogVisible" title="Galeri" width="95%" style="background: transparent" center top="30px">
     <div class="p-4">
-      <el-carousel :interval="4000" type="card" height="70vh">
+      <el-carousel :interval="4000" :initial-index="selectedImage" type="card" height="70vh">
         <el-carousel-item v-for="item in data" :key="item">
           <div class="p-2 text-center">
             <div
@@ -21,6 +21,7 @@ export default {
   props: {
     modalData: Boolean,
     data: Object,
+    selectedImage: Number,
   },
   data() {
     return {
@@ -35,6 +36,11 @@ export default {
       this.$emit("modalData", val);
     },
   },
+  methods: {
+    takip(e) {
+      console.log(e);
+    },
+  },
 };
 </script>
 
@@ -43,8 +49,5 @@ export default {
   height: 60vh;
   background-size: cover !important;
   background-position: center !important;
-}
-.el-dialog {
-  background: rgba(255, 255, 255, 0.9) !important;
 }
 </style>

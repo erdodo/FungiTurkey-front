@@ -15,8 +15,10 @@
       </div>
     </section>
 
-    <div class="container mb-5">
-      <img :src="ImgBase + activity.image" alt="" class="img-fluid rounded" />
+    <div class="container mb-5" v-loading="load" style="min-height: 300px">
+      <div class="d-flex justify-content-center">
+        <img :src="ImgBase + activity.image" alt="" style="max-height: 700px !important" class="img-fluid rounded" />
+      </div>
       <h2 class="mt-4">{{ activity.title }}</h2>
       <div class="d-flex flex-column">
         <h6 class="d-flex align-items-baseline mt-1">
@@ -55,11 +57,39 @@
           </span>
           <a class="text-dark">{{ activity.quota }} Kişi</a>
         </h6>
+        <button
+          v-if="activity.status_record == 1 && !getToken && activityRecords.length <= 0"
+          size="large"
+          class="btn btn-outline-warning my-2"
+          @click="login()"
+        >
+          Kayıt Olmak İçin Giriş Yap
+        </button>
+        <button
+          v-if="activity.status_record == 1 && getToken && activityRecords.length <= 0"
+          size="large"
+          class="btn btn-outline-warning my-2"
+          @click="kayitDialogEvent(activity)"
+        >
+          Etkinliğe Katıl
+        </button>
+        <button v-if="activityRecords.length > 0" class="btn btn-outline-success my-2" @click="recordDialogState = true">
+          Etkinlik kaydını güncelle
+        </button>
       </div>
+
       <p v-text="activity.content"></p>
     </div>
     <div class="container mb-5">
       <h4>Yorumlar</h4>
+      <div v-if="getToken">
+        <el-input v-model="cmm" :rows="3" size="large" type="textarea" placeholder="Yorumunuz..."></el-input>
+        <div class="w-100 d-flex justify-content-end">
+          <el-button type="primary" class="mt-3" @click="yorumGonder()"> Gönder</el-button>
+        </div>
+        <el-divider />
+      </div>
+
       <template v-for="c in comments" :key="c">
         <div class="card p-3 my-1">
           <div class="d-flex justify-content-between">
@@ -71,30 +101,74 @@
       </template>
     </div>
   </div>
+  <login :loginState="loginState"></login>
+  <activity-record
+    :kayitDialog="this.kayitDialog"
+    :dialogData="this.dialogData"
+    @dialogState="kayitDialog = $event"
+  ></activity-record>
+  <activity-record-edit
+    v-if="activityRecords.length > 0"
+    :record="this.activityRecords[0]"
+    :visible="recordDialogState"
+    @visible="recordDialogState = $event"
+  />
 </template>
 
 <script>
 import axios from "axios";
 import { Calendar, Money, User } from "@element-plus/icons-vue";
+import dateTimeParser from "@/hooks/dateTimeParser";
+import { ElMessageBox } from "element-plus";
+import { mapGetters } from "vuex";
+import login from "./login/login.vue";
+import ActivityRecord from "./modals/ActivityRecord.vue";
+import ActivityRecordEdit from "./modals/ActivityRecordEdit.vue";
 export default {
   data() {
     return {
       activity: [],
       modalData: false,
       comments: [],
+      load: true,
+      kayitDialog: false,
+      dialogData: {},
+      loginState: 0,
+      cmm: "",
+      activityRecords: [],
+      recordDialogState: false,
     };
+  },
+  computed: {
+    ...mapGetters(["getToken", "getProfile"]),
   },
   mounted() {
     this.getData();
     this.getComment();
+    this.getRecord();
   },
   methods: {
     getData() {
+      this.load = true;
       axios.post("fungitu2_fungiturkey/Activity/" + this.$route.params.id + "/get").then((response) => {
         this.activity = response.data.data;
       });
+      this.load = false;
+    },
+    getRecord() {
+      const params = {
+        filter: {
+          own_id: this.getProfile?.id,
+          activity_id: this.$route.params.id,
+        },
+      };
+      axios.post("fungitu2_fungiturkey/ActivityRecord", params).then((response) => {
+        this.activityRecords = response.data.data;
+        this.load = false;
+      });
     },
     getComment() {
+      this.load = true;
       let params = {
         filter: {
           activity_id: this.$route.params.id,
@@ -103,20 +177,34 @@ export default {
       axios.post("fungitu2_fungiturkey/ActivityComment", params).then((response) => {
         this.comments = response.data.data;
       });
+      this.load = false;
     },
-    dateTimeParser(data) {
-      var date = new Date(data);
-      var day = date.getDate() < 10 ? "0" + date.getDate() : date.getDate();
-      var month = date.getMonth() + 1 < 10 ? "0" + (date.getMonth() + 1) : date.getMonth() + 1;
-      var year = date.getFullYear();
-      var hour = date.getHours() < 10 ? "0" + date.getHours() : date.getHours();
-      var min = date.getMinutes() < 10 ? "0" + date.getMinutes() : date.getMinutes();
-      var sec = date.getSeconds() < 10 ? "0" + date.getSeconds() : date.getSeconds();
-      var time = day + "/" + month + "/" + year + " " + hour + ":" + min + ":" + sec;
-      return time;
+    yorumGonder() {
+      var profile = this.getProfile;
+      let formData = new FormData();
+      formData.append("name", profile.name);
+      formData.append("surname", profile.surname);
+      formData.append("comment", this.cmm);
+      formData.append("activity_id", this.activity.id);
+      axios.post("fungitu2_fungiturkey/ActivityComment/store", formData).then((res) => {
+        if (res.data.status == "success") {
+          ElMessageBox.alert("Yorumunuz başarıyla gönderildi. Teşekkürler.", "Başarılı", {
+            confirmButtonText: "Tamam",
+          });
+          this.getComment();
+        }
+      });
     },
+    login() {
+      this.loginState++;
+    },
+    kayitDialogEvent(data) {
+      this.kayitDialog = true;
+      this.dialogData = data;
+    },
+    dateTimeParser,
   },
-  components: { Calendar, Money, User },
+  components: { Calendar, Money, User, login, ActivityRecord, ActivityRecordEdit },
 };
 </script>
 

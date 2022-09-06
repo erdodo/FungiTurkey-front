@@ -14,7 +14,7 @@
       </div>
     </section>
 
-    <div class="container">
+    <div class="container" v-loading="load" style="min-height: 300px">
       <div class="row">
         <template v-for="a in about" :key="a">
           <div class="col-12 col-md-6">
@@ -36,6 +36,7 @@ export default {
   data() {
     return {
       about: [],
+      load: true,
     };
   },
   mounted() {
@@ -43,8 +44,10 @@ export default {
   },
   methods: {
     getData() {
+      this.load = true;
       axios.post("fungitu2_fungiturkey/About").then((response) => {
         this.about = response.data.data;
+        this.load = false;
       });
     },
   },

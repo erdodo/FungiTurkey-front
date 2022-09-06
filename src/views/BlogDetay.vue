@@ -15,14 +15,24 @@
       </div>
     </section>
 
-    <div class="container mb-5">
-      <img :src="ImgBase + blog.image" alt="" class="img-fluid rounded w-100" />
+    <div class="container mb-5" v-loading="load" style="min-height: 300px">
+      <div class="d-flex justify-content-center">
+        <img :src="ImgBase + blog.image" alt="" style="max-height: 700px !important" class="img-fluid rounded" />
+      </div>
+
       <h2 class="mt-4">{{ blog.title }}</h2>
 
       <p v-text="blog.content"></p>
     </div>
     <div class="container mb-5">
       <h4>Yorumlar</h4>
+      <div v-if="getToken">
+        <el-input v-model="cmm" :rows="3" size="large" type="textarea" placeholder="Yorumunuz..."></el-input>
+        <div class="w-100 d-flex justify-content-end">
+          <el-button type="primary" class="mt-3" @click="yorumGonder()"> Gönder</el-button>
+        </div>
+        <el-divider />
+      </div>
       <template v-for="c in comments" :key="c">
         <div class="card p-3 my-1">
           <div class="d-flex justify-content-between">
@@ -38,13 +48,20 @@
 
 <script>
 import axios from "axios";
+import dateTimeParser from "@/hooks/dateTimeParser";
+import { mapGetters } from "vuex";
+import { ElMessageBox } from "element-plus";
 export default {
   data() {
     return {
       blog: [],
-      modalData: false,
       comments: [],
+      load: true,
+      cmm: "",
     };
+  },
+  computed: {
+    ...mapGetters(["getToken"]),
   },
   mounted() {
     this.getData();
@@ -54,6 +71,7 @@ export default {
     getData() {
       axios.post("fungitu2_fungiturkey/Blog/" + this.$route.params.id + "/get").then((response) => {
         this.blog = response.data.data;
+        this.load = false;
       });
     },
     getComment() {
@@ -66,17 +84,25 @@ export default {
         this.comments = response.data.data;
       });
     },
-    dateTimeParser(data) {
-      var date = new Date(data);
-      var day = date.getDate() < 10 ? "0" + date.getDate() : date.getDate();
-      var month = date.getMonth() + 1 < 10 ? "0" + (date.getMonth() + 1) : date.getMonth() + 1;
-      var year = date.getFullYear();
-      var hour = date.getHours() < 10 ? "0" + date.getHours() : date.getHours();
-      var min = date.getMinutes() < 10 ? "0" + date.getMinutes() : date.getMinutes();
-      var sec = date.getSeconds() < 10 ? "0" + date.getSeconds() : date.getSeconds();
-      var time = day + "/" + month + "/" + year + " " + hour + ":" + min + ":" + sec;
-      return time;
+    yorumGonder() {
+      axios.post("/profile").then((res) => {
+        var profile = res.data.data;
+        let formData = new FormData();
+        formData.append("name", profile.name);
+        formData.append("surname", profile.surname);
+        formData.append("comment", this.cmm);
+        formData.append("blog_id", this.blog.id);
+        axios.post("fungitu2_fungiturkey/BlogComment/store", formData).then((res) => {
+          if (res.data.status == "success") {
+            ElMessageBox.alert("Yorumunuz başarıyla gönderildi. Teşekkürler.", "Başarılı", {
+              confirmButtonText: "Tamam",
+            });
+            this.getComment();
+          }
+        });
+      });
     },
+    dateTimeParser,
   },
 };
 </script>

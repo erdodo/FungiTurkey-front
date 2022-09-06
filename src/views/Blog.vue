@@ -14,7 +14,7 @@
       </div>
     </section>
 
-    <div class="container">
+    <div class="container" v-loading="load" style="min-height: 300px">
       <div class="row">
         <template v-for="a in blog" :key="a">
           <div class="col-12 col-sm-6 col-md-4">
@@ -35,10 +35,12 @@
 
 <script>
 import axios from "axios";
+import dateTimeParser from "@/hooks/dateTimeParser";
 export default {
   data() {
     return {
       blog: [],
+      load: true,
     };
   },
   mounted() {
@@ -48,19 +50,10 @@ export default {
     getData() {
       axios.post("fungitu2_fungiturkey/Blog").then((response) => {
         this.blog = response.data.data;
+        this.load = false;
       });
     },
-    dateTimeParser(data) {
-      var date = new Date(data);
-      var day = date.getDate() < 10 ? "0" + date.getDate() : date.getDate();
-      var month = date.getMonth() + 1 < 10 ? "0" + (date.getMonth() + 1) : date.getMonth() + 1;
-      var year = date.getFullYear();
-      var hour = date.getHours() < 10 ? "0" + date.getHours() : date.getHours();
-      var min = date.getMinutes() < 10 ? "0" + date.getMinutes() : date.getMinutes();
-      var sec = date.getSeconds() < 10 ? "0" + date.getSeconds() : date.getSeconds();
-      var time = day + "/" + month + "/" + year + " " + hour + ":" + min + ":" + sec;
-      return time;
-    },
+    dateTimeParser,
   },
 };
 </script>

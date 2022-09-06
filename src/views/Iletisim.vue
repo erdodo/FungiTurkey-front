@@ -16,7 +16,7 @@
 
     <!--Start Contact Us
 	=========================================== -->
-    <section class="contact-us" id="contact">
+    <section class="contact-us" id="contact" v-loading="load" style="min-height: 300px">
       <div class="container">
         <div class="row">
           <!-- Contact Details -->
@@ -64,11 +64,19 @@
           <!-- Contact Form -->
           <div class="contact-form col-md-6">
             <div class="form-group mb-4">
-              <input type="text" placeholder="İsminiz" class="form-control" v-model="name" />
+              <span v-if="getProfile">
+                {{ getProfile.name }} {{ getProfile.surname }}
+                <template>{{ (name = getProfile.name + " " + getProfile.surname) }} </template>
+              </span>
+              <input v-else type="text" placeholder="İsminiz" class="form-control" v-model="name" />
             </div>
 
             <div class="form-group mb-4">
-              <input type="email" placeholder="Eposta Adresiniz" class="form-control" v-model="email" />
+              <span v-if="getProfile">
+                {{ getProfile.email }}
+                <template>{{ (email = getProfile.email) }} </template>
+              </span>
+              <input v-else type="email" placeholder="Eposta Adresiniz" class="form-control" v-model="email" />
             </div>
 
             <div class="form-group mb-4">
@@ -108,6 +116,7 @@
 
 <script>
 import axios from "axios";
+import { mapGetters } from "vuex";
 export default {
   data() {
     return {
@@ -116,15 +125,21 @@ export default {
       email: "",
       subject: "",
       message: "",
+      load: true,
     };
+  },
+  computed: {
+    ...mapGetters(["getProfile"]),
   },
   mounted() {
     this.getData();
   },
   methods: {
     getData() {
+      this.load = true;
       axios.post("fungitu2_fungiturkey/Contact/first").then((response) => {
         this.contact = response.data.data;
+        this.load = false;
       });
     },
     gonder() {

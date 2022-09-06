@@ -14,7 +14,7 @@
         router
         @select="handleSelect"
       >
-        <el-menu-item index="0">
+        <el-menu-item index="/" class="border-bottom-0">
           <img src="@/assets/logo.png" width="130" class="m-2" alt="" />
         </el-menu-item>
         <div class="flex-grow" />

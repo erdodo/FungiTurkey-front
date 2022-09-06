@@ -64,8 +64,8 @@ export default {
           token: this.$store.getters.getToken,
         },
       };
-      axios.post("fungitu2_Simple/users", params).then((res) => {
-        this.profile = res.data.data[0];
+      axios.post("profile", params).then((res) => {
+        this.profile = res.data.data;
       });
     },
   },

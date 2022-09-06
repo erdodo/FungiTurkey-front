@@ -14,14 +14,14 @@
       </div>
     </section>
 
-    <div class="container">
+    <div class="container" v-loading="load" style="min-height: 300px">
       <div class="row">
-        <template v-for="a in galery" :key="a">
+        <template v-for="(a, key) in galery" :key="a">
           <div class="col-12 col-sm-6 col-md-4 col-xl-3">
             <div class="p-2 text-center">
               <div
                 class="w-100 image-card rounded cursor-pointer"
-                @click="modalData = !modalData"
+                @click="(modalData = !modalData), (selectedImage = key)"
                 :style="{ background: 'url(' + ImgBase + a.image + ')' }"
               ></div>
               <label class="mt-3">{{ a.title }}</label>
@@ -30,7 +30,7 @@
         </template>
       </div>
     </div>
-    <galery v-model="modalData" :data="galery"></galery>
+    <galery v-if="modalData" v-model="modalData" :selectedImage="selectedImage" :data="galery"></galery>
   </div>
 </template>
 
@@ -43,6 +43,8 @@ export default {
     return {
       galery: [],
       modalData: false,
+      load: true,
+      selectedImage: 0,
     };
   },
   mounted() {
@@ -50,8 +52,10 @@ export default {
   },
   methods: {
     getData() {
+      this.load = true;
       axios.post("fungitu2_fungiturkey/Galery").then((response) => {
         this.galery = response.data.data;
+        this.load = false;
       });
     },
   },

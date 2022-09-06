@@ -4,10 +4,10 @@
       <div class="container">
         <div class="row">
           <div class="col-md-12">
-            <h2>Etkinlik Yorumlarınız</h2>
+            <h2>Activity Yorumlarınız</h2>
             <ol class="breadcrumb header-bradcrumb justify-content-center">
               <li class="breadcrumb-item"><router-link to="/" class="text-white">Ana Sayfa</router-link></li>
-              <li class="breadcrumb-item active" aria-current="page">Etkinlik Yorumlarınız</li>
+              <li class="breadcrumb-item active" aria-current="page">Activity Yorumlarınız</li>
             </ol>
           </div>
         </div>
@@ -17,25 +17,57 @@
     <div class="container mb-5">
       <h4>Yorumlar</h4>
       <template v-for="c in comments" :key="c">
-        <a class="card p-3 my-1" :href="'/etkinlik/' + c.ActivityId + '-' + 'Yorum-yapılan-Etkinlik'">
-          <div class="d-flex justify-content-between">
-            <h5 class="m-0 p-0">{{ c.name }} {{ c.surname }}</h5>
-            <p class="text-warning">{{ dateTimeParser(c.added_date) }}</p>
+        <div class="card p-3 my-1">
+          <a class="" :href="'/activity/' + c.activity_id + '-' + 'Yorum-yapılan-etkinlik'">
+            <div class="d-flex justify-content-between">
+              <h5 class="m-0 p-0">{{ c.name }} {{ c.surname }}</h5>
+              <p class="text-warning">{{ dateTimeParser(c.added_date) }}</p>
+            </div>
+            <p>{{ c.comment }}</p>
+          </a>
+          <div class="w-100">
+            <el-button type="success" @click="duzenle(c)">Düzenle</el-button>
+            <el-popconfirm
+              title="Silmek istediğinize emin misiniz?"
+              confirm-button-text="Evet"
+              cancel-button-text="Vazgeç"
+              @confirm="sil(c)"
+            >
+              <template #reference>
+                <el-button type="danger">Sil</el-button>
+              </template>
+            </el-popconfirm>
           </div>
-          <p>{{ c.comment }}</p>
-        </a>
+        </div>
       </template>
     </div>
   </div>
+  <el-dialog v-model="dialogState" title="Düzenle" width="50%" :before-close="handleClose">
+    <el-input v-model="islemData.comment" :rows="4" type="textarea" placeholder="Yorumunu<"></el-input>
+    <template #footer>
+      <span class="dialog-footer">
+        <el-button @click="dialogState = false">Vazgeç</el-button>
+        <el-button type="primary" @click="duzenleOnay()">Kaydet</el-button>
+      </span>
+    </template>
+  </el-dialog>
 </template>
 
 <script>
 import axios from "axios";
+import dateTimeParser from "@/hooks/dateTimeParser";
+import { ElNotification } from "element-plus";
+import { mapGetters } from "vuex";
 export default {
   data() {
     return {
       comments: [],
+      islemData: {},
+      dialogState: false,
     };
+  },
+  computed: {
+    ...mapGetters(["getProfile"]),
   },
   mounted() {
     this.getData();
@@ -44,24 +76,45 @@ export default {
     getData() {
       const params = {
         filter: {
-          own_id: "1",
+          own_id: this.getProfile.id,
         },
       };
       axios.post("fungitu2_fungiturkey/ActivityComment", params).then((response) => {
         this.comments = response.data.data;
       });
     },
-    dateTimeParser(data) {
-      var date = new Date(data);
-      var day = date.getDate() < 10 ? "0" + date.getDate() : date.getDate();
-      var month = date.getMonth() + 1 < 10 ? "0" + (date.getMonth() + 1) : date.getMonth() + 1;
-      var year = date.getFullYear();
-      var hour = date.getHours() < 10 ? "0" + date.getHours() : date.getHours();
-      var min = date.getMinutes() < 10 ? "0" + date.getMinutes() : date.getMinutes();
-      var sec = date.getSeconds() < 10 ? "0" + date.getSeconds() : date.getSeconds();
-      var time = day + "/" + month + "/" + year + " " + hour + ":" + min + ":" + sec;
-      return time;
+    duzenle(c) {
+      this.dialogState = true;
+      this.islemData = c;
     },
+    duzenleOnay() {
+      let formData = new FormData();
+      formData.append("comment", this.islemData.comment);
+      axios.post("fungitu2_fungiturkey/ActivityComment/" + this.islemData.id + "/update", formData).then((res) => {
+        if (res.data.status == "success") {
+          ElNotification({
+            title: "Başarılı",
+            message: "Yorum başarıyla düzenlendi",
+            type: "success",
+          });
+          this.dialogState = false;
+        }
+      });
+    },
+    sil(c) {
+      axios.post("fungitu2_fungiturkey/ActivityComment/" + c.id + "/delete").then((res) => {
+        if (res.data.status == "success") {
+          ElNotification({
+            title: "Başarılı",
+            message: "Yorum başarıyla silindi",
+            type: "success",
+          });
+          this.dialogState = false;
+          this.getData();
+        }
+      });
+    },
+    dateTimeParser,
   },
 };
 </script>

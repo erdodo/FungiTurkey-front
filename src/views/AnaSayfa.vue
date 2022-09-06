@@ -1,15 +1,11 @@
 <template>
-  <div class="hero-slider p-0" v-if="slides.length > 0">
+  <div v-loading="load" class="hero-slider p-0" v-if="slides.length > 0">
     <vueper-slides fixed-height="100vh" autoplay pause-on-hover :touchable="false">
-      <vueper-slide
-        v-for="(slide, i) in slides"
-        :key="i"
-        :title="slide.title"
-        :image="ImgBase + slide.image"
-        :content="slide.content"
-      >
+      <vueper-slide v-for="(slide, i) in slides" :key="i" :title="slide.title" :content="slide.content">
         <template #content>
-          <div class="slider-content">
+          <img class="slider-back" src="" :id="slide.image" alt="" />
+
+          <div class="slider-content" style="background: rgba(0, 0, 0, 0.6)">
             <div class="row justify-content-md-center">
               <div class="col-11 col-sm-9 col-md-7">
                 <h1 class="display-4">{{ slide.title }}</h1>
@@ -35,17 +31,40 @@ export default {
   data() {
     return {
       slides: [],
+      load: true,
     };
   },
   mounted() {
+    this.load = true;
     this.getData();
   },
   methods: {
     getData() {
-      axios.post("fungitu2_fungiturkey/Slider").then((response) => {
-        this.slides = response.data.data;
-        console.log(this.slides);
-      });
+      axios
+        .post("fungitu2_fungiturkey/Slider")
+        .then((response) => {
+          this.slides = response.data.data;
+          this.load = false;
+          for (const img of Object.values(this.slides)) {
+            document.getElementById("app").style.display = "none";
+            document.getElementById("first-load").style.display = "flex";
+
+            var image = new Image();
+            image.onload = function () {
+              document.getElementById(img.image).setAttribute("src", this.src);
+              document.getElementById("app").style.display = "block";
+              document.getElementById("first-load").style.display = "none ";
+            };
+            image.src = this.ImgBase + img.image;
+          }
+        })
+        .catch((e) => {
+          if (e.response.data.message == "Unauthorized") {
+            this.$store.commit("setToken", "");
+            this.$store.commit("setProfile", "");
+            window.location.reload();
+          }
+        });
     },
   },
 };
@@ -53,7 +72,7 @@ export default {
 
 <style>
 .slider-content {
-  background-color: rgba(0, 0, 0, 0.5);
+  background-color: rgba(0, 0, 0, 0.4);
   color: #fff;
   padding: 10px;
   height: 100%;
@@ -62,6 +81,15 @@ export default {
   flex-direction: column;
   justify-content: center;
   align-items: center;
+  text-align: center;
+  position: relative;
+}
+.slider-back {
+  position: fixed;
+  min-height: 100vh;
+  min-width: 100vw;
+  width: auto;
+  inline-size: max-content;
   text-align: center;
 }
 </style>
