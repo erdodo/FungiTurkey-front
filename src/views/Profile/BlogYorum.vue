@@ -14,43 +14,57 @@
       </div>
     </section>
 
-    <div class="container mb-5">
+    <div class="container mb-5" v-loading="load">
       <h4>Yorumlar</h4>
       <template v-for="c in comments" :key="c">
         <div class="card p-3 my-1">
-          <a class="" :href="'/blog/' + c.blog_id + '-' + 'Yorum-yapılan-blog'">
-            <div class="d-flex justify-content-between">
-              <h5 class="m-0 p-0">{{ c.name }} {{ c.surname }}</h5>
-              <p class="text-warning">{{ dateTimeParser(c.added_date) }}</p>
+          <a :href="'/blog/' + c.blog_id + '-' + 'Yorum-yapılan-blog'" class="d-flex">
+            <div style="width: 200px">
+              <el-image :src="ImgBase + blogs[c.blog_id].image" style="height: 100px">
+                <template #placeholder>
+                  <div class="image-slot">Loading<span class="dot">...</span></div>
+                </template>
+              </el-image>
             </div>
-            <p>{{ c.comment }}</p>
+            <div class="d-flex flex-column justify-content-between">
+              <h5>{{ blogs[c.blog_id].title }}</h5>
+              <p class="text-warning">{{ dateTimeParser(c.added_date) }}</p>
+              <p>{{ c.comment }}</p>
+            </div>
           </a>
-          <div class="w-100">
-            <el-button type="success" @click="duzenle(c)">Düzenle</el-button>
-            <el-popconfirm
-              title="Silmek istediğinize emin misiniz?"
-              confirm-button-text="Evet"
-              cancel-button-text="Vazgeç"
-              @confirm="sil(c)"
-            >
-              <template #reference>
-                <el-button type="danger">Sil</el-button>
-              </template>
-            </el-popconfirm>
+          <div class="w-100 d-flex justify-content-between">
+            <div>
+              <el-button type="success" @click="duzenle(c)">Düzenle</el-button>
+              <el-popconfirm
+                title="Silmek istediğinize emin misiniz?"
+                confirm-button-text="Evet"
+                cancel-button-text="Vazgeç"
+                @confirm="sil(c)"
+              >
+                <template #reference>
+                  <el-button type="danger">Sil</el-button>
+                </template>
+              </el-popconfirm>
+            </div>
+            <div>
+              <el-tag class="mx-1" size="large" type="success" v-if="c.status == 1">Onaylı</el-tag>
+              <el-tag class="mx-1" size="large" type="danger" v-else>Onay Bekliyor</el-tag>
+            </div>
           </div>
         </div>
       </template>
+      <el-empty description="Buralar boş gibi görünüyor" v-if="comments.length <= 0" />
     </div>
+    <el-dialog v-model="dialogState" title="Düzenle" width="50%" :before-close="handleClose">
+      <el-input v-model="islemData.comment" :rows="4" type="textarea" placeholder="Yorumunu<"></el-input>
+      <template #footer>
+        <span class="dialog-footer">
+          <el-button @click="dialogState = false">Vazgeç</el-button>
+          <el-button type="primary" @click="duzenleOnay()">Kaydet</el-button>
+        </span>
+      </template>
+    </el-dialog>
   </div>
-  <el-dialog v-model="dialogState" title="Düzenle" width="50%" :before-close="handleClose">
-    <el-input v-model="islemData.comment" :rows="4" type="textarea" placeholder="Yorumunu<"></el-input>
-    <template #footer>
-      <span class="dialog-footer">
-        <el-button @click="dialogState = false">Vazgeç</el-button>
-        <el-button type="primary" @click="duzenleOnay()">Kaydet</el-button>
-      </span>
-    </template>
-  </el-dialog>
 </template>
 
 <script>
@@ -65,6 +79,8 @@ export default {
       comments: [],
       islemData: {},
       dialogState: false,
+      load: false,
+      blogs: {},
     };
   },
   computed: {
@@ -75,33 +91,49 @@ export default {
   },
   methods: {
     getData() {
+      this.load = true;
       const params = {
         filter: {
           own_id: this.getProfile.id,
         },
       };
-      axios.post("fungitu2_fungiturkey/BlogComment", params).then((response) => {
-        this.comments = response.data.data;
-      });
+      axios
+        .post("fungitu2_fungiturkey/BlogComment", params)
+        .then((response) => {
+          this.comments = response.data.data;
+          for (const val of Object.values(this.comments)) {
+            this.getBlog(val.blog_id);
+          }
+        })
+        .finally(() => {
+          this.load = false;
+        });
     },
     duzenle(c) {
       this.dialogState = true;
       this.islemData = c;
     },
     duzenleOnay() {
-      let formData = new FormData();
-      formData.append("comment", this.islemData.comment);
-      axios.post("fungitu2_fungiturkey/BlogComment/" + this.islemData.id + "/update", formData).then((res) => {
-        if (res.data.status == "success") {
-          ElNotification({
-            title: "Başarılı",
-            message: "Yorum başarıyla düzenlendi",
-            type: "success",
-          });
-          this.dialogState = false;
-          this.getData();
-        }
-      });
+      this.load = true;
+      axios
+        .post("fungitu2_fungiturkey/BlogComment/" + this.islemData.id + "/update", {
+          comment: this.islemData.comment,
+          status: "0",
+        })
+        .then((res) => {
+          if (res.data.status == "success") {
+            ElNotification({
+              title: "Başarılı",
+              message: "Yorum başarıyla onaya gönderildi.",
+              type: "success",
+            });
+            this.dialogState = false;
+            this.getData();
+          }
+        })
+        .finally(() => {
+          this.load = false;
+        });
     },
     sil(c) {
       axios.post("fungitu2_fungiturkey/BlogComment/" + c.id + "/delete").then((res) => {
@@ -115,6 +147,18 @@ export default {
           this.getData();
         }
       });
+    },
+    getBlog(id) {
+      this.load = true;
+
+      axios
+        .post("fungitu2_fungiturkey/Blog/" + id + "/get")
+        .then((response) => {
+          this.blogs[id] = response.data.data;
+        })
+        .finally(() => {
+          this.load = false;
+        });
     },
     dateTimeParser,
   },

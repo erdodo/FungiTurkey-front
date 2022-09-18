@@ -86,7 +86,12 @@ export default {
   },
   methods: {
     getData() {
-      axios.post("fungitu2_fungiturkey/Activity").then((response) => {
+      const params = {
+        filter: {
+          status: "1",
+        },
+      };
+      axios.post("fungitu2_fungiturkey/Activity", params).then((response) => {
         this.activity = response.data.data;
         this.load = false;
       });

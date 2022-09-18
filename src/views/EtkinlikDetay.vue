@@ -23,6 +23,12 @@
       <div class="d-flex flex-column">
         <h6 class="d-flex align-items-baseline mt-1">
           <span class="mr-3 text-success">
+            <el-icon class="mr-2 mb-0"><Location /> </el-icon>Konum:
+          </span>
+          <a class="text-dark">{{ activity.location }} </a>
+        </h6>
+        <h6 class="d-flex align-items-baseline mt-1">
+          <span class="mr-3 text-success">
             <el-icon class="mr-2 mb-0"><Calendar /> </el-icon>Başlama Tarihi:
           </span>
           <a class="text-dark">{{ dateTimeParser(activity.start_date) }}</a>
@@ -43,7 +49,7 @@
           <span class="mr-3 text-success">
             <el-icon class="mr-2 mb-0"><Money /> </el-icon>Ücret:
           </span>
-          <a class="text-dark">{{ activity.price }}</a>
+          <a class="text-dark">{{ activity.price }} ₺ (Kişi başı)</a>
         </h6>
         <h6 class="d-flex align-items-baseline mt-1">
           <span class="mr-3 text-success">
@@ -57,6 +63,13 @@
           </span>
           <a class="text-dark">{{ activity.quota }} Kişi</a>
         </h6>
+        <h6 class="d-flex align-items-baseline mt-1">
+          <span class="mr-3 text-success">
+            <el-icon class="mr-2 mb-0"><User /> </el-icon>Kalan Kontenjan:
+          </span>
+          <a class="text-dark">{{ activity.quota - activityRecordsCount }} Kişi</a>
+        </h6>
+
         <button
           v-if="activity.status_record == 1 && !getToken && activityRecords.length <= 0"
           size="large"
@@ -66,26 +79,40 @@
           Kayıt Olmak İçin Giriş Yap
         </button>
         <button
-          v-if="activity.status_record == 1 && getToken && activityRecords.length <= 0"
+          v-if="
+            activity.status_record == 1 && getToken && activityRecords.length <= 0 && activityRecordsCount < activity.quota
+          "
           size="large"
           class="btn btn-outline-warning my-2"
           @click="kayitDialogEvent(activity)"
         >
           Etkinliğe Katıl
         </button>
-        <button v-if="activityRecords.length > 0" class="btn btn-outline-success my-2" @click="recordDialogState = true">
+        <button
+          v-else-if="activity.status_record == 1 && getToken && activityRecords.length <= 0"
+          size="large"
+          class="btn btn-outline-danger my-2"
+        >
+          Kotamız dolmuştur
+        </button>
+
+        <button
+          v-if="activityRecords.length > 0 && activityRecords[0]?.price_status == '0'"
+          class="btn btn-outline-success my-2"
+          @click="recordDialogState = true"
+        >
           Etkinlik kaydını güncelle
         </button>
       </div>
 
-      <p v-text="activity.content"></p>
+      <p v-html="activity.content"></p>
     </div>
-    <div class="container mb-5">
+    <div class="container mb-5" v-loading="load">
       <h4>Yorumlar</h4>
       <div v-if="getToken">
-        <el-input v-model="cmm" :rows="3" size="large" type="textarea" placeholder="Yorumunuz..."></el-input>
+        <el-input v-model="cmm" maxlength="300" placeholder="Yorumunuz..." show-word-limit type="textarea" />
         <div class="w-100 d-flex justify-content-end">
-          <el-button type="primary" class="mt-3" @click="yorumGonder()"> Gönder</el-button>
+          <el-button :disabled="load" type="primary" class="mt-3" @click="yorumGonder()"> Gönder</el-button>
         </div>
         <el-divider />
       </div>
@@ -100,24 +127,29 @@
         </div>
       </template>
     </div>
+    <login :loginState="loginState"></login>
+    <activity-record
+      :kayitDialog="this.kayitDialog"
+      :dialogData="this.dialogData"
+      @dialogState="kayitDialog = $event"
+      :limit="activity.quota - activityRecordsCount"
+    ></activity-record>
+    <activity-record-edit
+      v-if="activityRecords.length > 0"
+      :record="this.activityRecords[0]"
+      :visible="recordDialogState"
+      @visible="recordDialogState = $event"
+      :benim="this.activityRecords[0].people_count"
+      :kota="activity.quota"
+      :kayit="activityRecordsCount"
+    />
+    {{ this.activityRecords[0] }}
   </div>
-  <login :loginState="loginState"></login>
-  <activity-record
-    :kayitDialog="this.kayitDialog"
-    :dialogData="this.dialogData"
-    @dialogState="kayitDialog = $event"
-  ></activity-record>
-  <activity-record-edit
-    v-if="activityRecords.length > 0"
-    :record="this.activityRecords[0]"
-    :visible="recordDialogState"
-    @visible="recordDialogState = $event"
-  />
 </template>
 
 <script>
 import axios from "axios";
-import { Calendar, Money, User } from "@element-plus/icons-vue";
+import { Calendar, Money, User, Location } from "@element-plus/icons-vue";
 import dateTimeParser from "@/hooks/dateTimeParser";
 import { ElMessageBox } from "element-plus";
 import { mapGetters } from "vuex";
@@ -137,6 +169,7 @@ export default {
       cmm: "",
       activityRecords: [],
       recordDialogState: false,
+      activityRecordsCount: 0,
     };
   },
   computed: {
@@ -146,6 +179,7 @@ export default {
     this.getData();
     this.getComment();
     this.getRecord();
+    this.getLimit();
   },
   methods: {
     getData() {
@@ -172,6 +206,7 @@ export default {
       let params = {
         filter: {
           activity_id: this.$route.params.id,
+          status: 1,
         },
       };
       axios.post("fungitu2_fungiturkey/ActivityComment", params).then((response) => {
@@ -179,21 +214,46 @@ export default {
       });
       this.load = false;
     },
-    yorumGonder() {
-      var profile = this.getProfile;
-      let formData = new FormData();
-      formData.append("name", profile.name);
-      formData.append("surname", profile.surname);
-      formData.append("comment", this.cmm);
-      formData.append("activity_id", this.activity.id);
-      axios.post("fungitu2_fungiturkey/ActivityComment/store", formData).then((res) => {
-        if (res.data.status == "success") {
-          ElMessageBox.alert("Yorumunuz başarıyla gönderildi. Teşekkürler.", "Başarılı", {
-            confirmButtonText: "Tamam",
-          });
-          this.getComment();
+    getLimit() {
+      const params = {
+        filter: {
+          activity_id: this.$route.params.id,
+          status: "1",
+        },
+      };
+      axios.post("fungitu2_fungiturkey/ActivityRecord", params).then((response) => {
+        let activityRecords = response.data.data;
+        for (const val of Object.values(activityRecords)) {
+          this.activityRecordsCount += parseFloat(val.people_count);
         }
+        this.load = false;
       });
+    },
+    yorumGonder() {
+      if (this.cmm.length < 5) {
+        ElMessageBox.alert("Lütfen en az 5 karakterlik bir yorum giriniz.", "Dikkat", {
+          confirmButtonText: "Tamam",
+        });
+      } else {
+        this.load = true;
+        var profile = this.getProfile;
+        let formData = new FormData();
+        formData.append("name", profile.name);
+        formData.append("surname", profile.surname);
+        formData.append("comment", this.cmm);
+        formData.append("activity_id", this.activity.id);
+        formData.append("member_id", profile.id);
+        formData.append("status", "0");
+        axios.post("fungitu2_fungiturkey/ActivityComment/store", formData).then((res) => {
+          if (res.data.status == "success") {
+            ElMessageBox.alert("Yorumunuz başarıyla gönderildi. Teşekkürler.", "Başarılı", {
+              confirmButtonText: "Tamam",
+            });
+            this.load = false;
+            this.getComment();
+          }
+        });
+      }
     },
     login() {
       this.loginState++;
@@ -204,7 +264,7 @@ export default {
     },
     dateTimeParser,
   },
-  components: { Calendar, Money, User, login, ActivityRecord, ActivityRecordEdit },
+  components: { Calendar, Money, User, login, ActivityRecord, ActivityRecordEdit, Location },
 };
 </script>
 

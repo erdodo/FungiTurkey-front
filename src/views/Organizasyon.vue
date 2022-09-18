@@ -21,9 +21,7 @@
             <div class="p-2 text-center">
               <img :src="ImgBase + a.image" alt="" class="w-100 rounded" />
               <h4 class="mt-3">{{ a.title }}</h4>
-              <p>
-                {{ a.content }}
-              </p>
+              <div v-html="a.content"></div>
             </div>
           </div>
         </template>
@@ -46,8 +44,13 @@ export default {
   },
   methods: {
     getData() {
+      const params = {
+        filter: {
+          status: 1,
+        },
+      };
       this.load = true;
-      axios.post("fungitu2_fungiturkey/Services").then((response) => {
+      axios.post("fungitu2_fungiturkey/Services", params).then((response) => {
         this.services = response.data.data;
         this.load = false;
       });

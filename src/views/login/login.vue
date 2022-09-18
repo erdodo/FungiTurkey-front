@@ -1,26 +1,29 @@
 <template>
   <div>
-    <el-dialog v-model="state" title="Giriş Yap" width="400px" :before-close="handleClose" draggable>
+    <el-dialog v-model="state" title="Giriş Yap" v-loading="load" width="400px" :before-close="handleClose" draggable>
       <label for="">Eposta:</label>
       <el-input v-model="email" placeholder="Eposta adresiniz" size="large"></el-input>
       <label for="" class="text-danger">{{ err }}</label>
       <br />
       <label class="mt-3" for="">Şifre:</label>
       <el-input v-model="password" type="password" size="large" placeholder="Şifreniz" show-password></el-input>
-
+      <span @click="forgetstate = true" class="cursor-pointer">Şifremi unuttum </span>
       <template #footer>
         <span class="dialog-footer">
           <el-button type="primary" @click="giris()" class="w-100">Giriş</el-button>
         </span>
       </template>
     </el-dialog>
+    <forget :forgetstate="forgetstate"></forget>
   </div>
 </template>
 
 <script>
 import axios from "axios";
 import { ElNotification } from "element-plus";
+import forget from "./forget.vue";
 export default {
+  components: { forget },
   props: ["loginState"],
   data() {
     return {
@@ -28,11 +31,14 @@ export default {
       email: "",
       password: "",
       err: "",
+      forgetstate: false,
+      load: false,
     };
   },
   mounted() {},
   methods: {
     giris() {
+      this.load = true;
       axios
         .post("/login", {
           email: this.email,
@@ -61,6 +67,9 @@ export default {
               type: "error",
             });
           }
+        })
+        .finally(() => {
+          this.load = false;
         });
     },
   },

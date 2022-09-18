@@ -16,14 +16,22 @@
 
     <div class="container" v-loading="load" style="min-height: 300px">
       <div class="row">
-        <template v-for="(a, key) in galery" :key="a">
+        <template v-for="(a, key) in galery" :key="key">
           <div class="col-12 col-sm-6 col-md-4 col-xl-3">
             <div class="p-2 text-center">
-              <div
+              <el-image
+                :src="ImgBase + a.image"
+                style="width: 100%"
                 class="w-100 image-card rounded cursor-pointer"
+                fit="cover"
                 @click="(modalData = !modalData), (selectedImage = key)"
-                :style="{ background: 'url(' + ImgBase + a.image + ')' }"
-              ></div>
+              >
+                <template #placeholder>
+                  <div v-loading="true" class="card h-100 d-flex align-items-center justify-content-center">
+                    <div></div>
+                  </div>
+                </template>
+              </el-image>
               <label class="mt-3">{{ a.title }}</label>
             </div>
           </div>
@@ -52,8 +60,13 @@ export default {
   },
   methods: {
     getData() {
+      const params = {
+        filter: {
+          status: 1,
+        },
+      };
       this.load = true;
-      axios.post("fungitu2_fungiturkey/Galery").then((response) => {
+      axios.post("fungitu2_fungiturkey/Galery", params).then((response) => {
         this.galery = response.data.data;
         this.load = false;
       });
@@ -65,7 +78,5 @@ export default {
 <style>
 .image-card {
   height: 200px;
-  background-size: cover !important;
-  background-position: center !important;
 }
 </style>

@@ -379,14 +379,14 @@ a:focus, a:hover {
 
 .single-page-header {
   background-image: url("../images/about/about-header.jpg");
-  background-size: cover;
+  background-size: cover !important;
   padding: 140px 0 70px;
   text-align: center;
   color: #fff;
   position: relative;
 }
 .single-page-header:before {
-  background: rgba(0, 0, 0, 0.8);
+  background: rgba(0, 0, 0, 0.6);
   position: absolute;
   content: "";
   top: 0;

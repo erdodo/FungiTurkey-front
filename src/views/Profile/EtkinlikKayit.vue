@@ -18,16 +18,24 @@
       <div class="row">
         <template v-for="a in activityRecords" :key="a">
           <div class="col-12">
-            <div class="p-2 card">
+            <div class="p-2 mt-2 card">
               <div class="row">
                 <div class="col-12 col-md-8">
                   <template> {{ getActivity(a.activity_id) }} </template>
-                  <div class="d-flex align-items-center h-100 flex-wrap justify-content-center justify-content-md-left">
-                    <img :src="ImgBase + activities[a.activity_id].image" style="height: 130px" />
+                  <div class="d-flex align-items-center h-100 flex-wrap justify-content-start justify-content-md-left">
+                    <el-image :src="ImgBase + activities[a.activity_id]?.image" style="height: 130px">
+                      <template #placeholder>
+                        <div class="image-slot">Yükleniyor<span class="dot">...</span></div>
+                      </template>
+                    </el-image>
                     <div class="mx-1">
-                      <h5>{{ activities[a.activity_id].title }}</h5>
+                      <h5>{{ activities[a.activity_id]?.title }}</h5>
                       <p>
-                        Kordinatör: <a class="text-warning ml-2"> {{ activities[a.activity_id].director }} Kişi</a>
+                        Kordinatör: <a class="text-warning ml-2"> {{ activities[a.activity_id]?.director }} Kişi</a>
+                      </p>
+                      <p>
+                        Toplam Ücret:
+                        <a class="text-warning ml-2"> {{ activities[a.activity_id]?.price * a.people_count }} TL</a>
                       </p>
                     </div>
                   </div>
@@ -41,15 +49,49 @@
                     <p>
                       Kayıt tarihi: <a class="text-warning"> {{ dateTimeParser(a.added_date) }}</a>
                     </p>
-                    <el-tag class="mx-1" size="large" type="success" v-if="a.price_status == 1">Ödeme alındı</el-tag>
-                    <el-tag class="mx-1" size="large" type="danger" v-else>Ödeme alınmadı</el-tag>
+                    <div class="d-flex">
+                      <el-button type="primary" v-if="a.price_status != 1" @click="(record = a), (editStatus = true)"
+                        >Düzenle</el-button
+                      >
+                      <el-tag class="mx-1" size="large" type="success" v-if="a.price_status == 1">Ödeme alındı</el-tag>
+                      <el-tag class="mx-1" size="large" type="danger" v-else>Ödeme alınmadı</el-tag>
+                      <div>
+                        <el-tag class="mx-1" size="large" type="success" v-if="a.status == 1">Onaylı</el-tag>
+                        <el-tag class="mx-1" size="large" type="danger" v-else>Onay Bekliyor</el-tag>
+                      </div>
+                      <el-popconfirm
+                        confirm-button-text="Evet"
+                        cancel-button-text="Hayır"
+                        :icon="InfoFilled"
+                        icon-color="#626AEF"
+                        title="Silmek istediğinize emin misiniz?"
+                        @confirm="kayitSil(a.id)"
+                        @cancel="cancelEvent"
+                        v-if="a.price_status != 1"
+                      >
+                        <template #reference>
+                          <el-button type="danger">Sil</el-button>
+                        </template>
+                      </el-popconfirm>
+                    </div>
                   </div>
                 </div>
               </div>
             </div>
           </div>
         </template>
+        <el-empty class="col-12" description="Buralar boş gibi görünüyor" v-if="activityRecords.length <= 0" />
       </div>
+    </div>
+    <div>
+      <activity-record-edit
+        :record="record"
+        :visible="editStatus"
+        :benim="record.people_count"
+        :kota="activities[record.activity_id]?.quota"
+        :kayit="activityRecordsCount[record.activity_id]"
+        @state="getData(), (editStatus = false)"
+      ></activity-record-edit>
     </div>
   </div>
 </template>
@@ -58,12 +100,21 @@
 import axios from "axios";
 import { mapGetters } from "vuex";
 import dateTimeParser from "@/hooks/dateTimeParser";
+import ActivityRecordEdit from "../modals/ActivityRecordEdit.vue";
+import { InfoFilled } from "@element-plus/icons-vue";
+import { ElNotification } from "element-plus";
 
 export default {
+  components: { ActivityRecordEdit },
   data() {
     return {
+      InfoFilled,
       activityRecords: [],
       activities: {},
+      editStatus: false,
+      record: {},
+      load: false,
+      activityRecordsCount: {},
     };
   },
   mounted() {
@@ -74,23 +125,75 @@ export default {
   },
   methods: {
     getData() {
-      console.log(this.getProfile);
+      this.load = true;
       const params = {
         filter: {
           own_id: this.getProfile.id,
         },
       };
-      axios.post("fungitu2_fungiturkey/ActivityRecord", params).then((response) => {
-        this.activityRecords = response.data.data;
-        this.load = false;
-      });
+      axios
+        .post("fungitu2_fungiturkey/ActivityRecord", params)
+        .then((response) => {
+          this.activityRecords = response.data.data;
+          for (const val of Object.values(this.activityRecords)) {
+            if (this.activityRecordsCount[val.activity_id] == undefined) {
+              this.activityRecordsCount[val.activity_id] = 0;
+            }
+            this.getLimit(val.activity_id);
+          }
+        })
+        .finally(() => {
+          this.load = false;
+        });
     },
     getActivity(id) {
       if (this.activities[id] == undefined) {
-        axios.post("fungitu2_fungiturkey/Activity/" + id + "/get").then((response) => {
-          this.activities[id] = response.data.data;
-        });
+        this.load = true;
+        axios
+          .post("fungitu2_fungiturkey/Activity/" + id + "/get")
+          .then((response) => {
+            this.activities[id] = response.data.data;
+          })
+          .finally(() => {
+            this.load = false;
+          });
       }
+    },
+    getLimit(id) {
+      const params = {
+        filter: {
+          activity_id: id,
+          status: "1",
+        },
+      };
+      axios.post("fungitu2_fungiturkey/ActivityRecord", params).then((response) => {
+        let activityRecords = response.data.data;
+        this.activityRecordsCount[id] = 0;
+        for (const val of Object.values(activityRecords)) {
+          console.log(val);
+
+          this.activityRecordsCount[val.activity_id] =
+            parseFloat(this.activityRecordsCount[val.activity_id]) + parseFloat(val.people_count);
+        }
+        this.load = false;
+      });
+    },
+    kayitSil(id) {
+      axios
+        .post("fungitu2_fungiturkey/ActivityRecord/" + id + "/delete")
+        .then((res) => {
+          if (res.data.status == "success") {
+            ElNotification({
+              title: "Başarılı",
+              message: "Kayıt başarıyla silindi",
+              type: "success",
+            });
+          }
+        })
+        .finally(() => {
+          this.getData();
+          this.load = false;
+        });
     },
     dateTimeParser,
   },

@@ -62,6 +62,11 @@ const routes = [
     component: () => import("@/views/Sponsor.vue"),
   },
   {
+    path: "/takim",
+    name: "team",
+    component: () => import("@/views/Team.vue"),
+  },
+  {
     path: "/profil",
     name: "Profil",
     component: () => import("@/views/Profile/Profile.vue"),

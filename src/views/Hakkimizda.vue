@@ -16,15 +16,16 @@
 
     <div class="container" v-loading="load" style="min-height: 300px">
       <div class="row">
-        <template v-for="a in about" :key="a">
-          <div class="col-12 col-md-6">
-            <h2>{{ a.title }}</h2>
-            <p>
-              {{ a.content }}
-            </p>
-            <img :src="ImgBase + a.image" alt="" class="w-100" />
-          </div>
-        </template>
+        <div class="col-12 col-md-6">
+          <h2>{{ about1.title }}</h2>
+          <div v-html="about1.content"></div>
+          <img :src="ImgBase + about1.image" alt="" class="w-100" />
+        </div>
+        <div class="col-12 col-md-6">
+          <h2>{{ about2.title }}</h2>
+          <div v-html="about2.content"></div>
+          <img :src="ImgBase + about2.image" alt="" class="w-100" />
+        </div>
       </div>
     </div>
   </div>
@@ -35,7 +36,8 @@ import axios from "axios";
 export default {
   data() {
     return {
-      about: [],
+      about1: {},
+      about2: {},
       load: true,
     };
   },
@@ -45,9 +47,12 @@ export default {
   methods: {
     getData() {
       this.load = true;
-      axios.post("fungitu2_fungiturkey/About").then((response) => {
-        this.about = response.data.data;
-        this.load = false;
+      axios.post("fungitu2_fungiturkey/About/1/get").then((response) => {
+        this.about1 = response.data.data;
+        axios.post("fungitu2_fungiturkey/About/2/get").then((res) => {
+          this.about2 = res.data.data;
+          this.load = false;
+        });
       });
     },
   },

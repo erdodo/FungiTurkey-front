@@ -50,7 +50,12 @@ export default {
   methods: {
     getData() {
       this.load = true;
-      axios.post("fungitu2_fungiturkey/Sponsor").then((response) => {
+      const params = {
+        filter: {
+          status: 1,
+        },
+      };
+      axios.post("fungitu2_fungiturkey/Sponsor", params).then((response) => {
         this.sponsor = response.data.data;
         this.load = false;
       });

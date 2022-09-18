@@ -14,8 +14,8 @@
         router
         @select="handleSelect"
       >
-        <el-menu-item index="/" class="border-bottom-0">
-          <img src="@/assets/logo.png" width="130" class="m-2" alt="" />
+        <el-menu-item :index="'/'" class="border-bottom-0">
+          <a href="/"> <img src="@/assets/logo.png" width="130" class="m-2" alt="" /></a>
         </el-menu-item>
         <div class="flex-grow" />
         <el-menu-item index="/">Anasayfa</el-menu-item>
@@ -25,6 +25,7 @@
         <el-menu-item index="/etkinlik">Etkinlikler</el-menu-item>
         <el-menu-item index="/blog">Blog</el-menu-item>
         <el-menu-item index="/sponsor">Sponsorlar</el-menu-item>
+        <el-menu-item index="/takim">Takımımız</el-menu-item>
         <el-menu-item index="/magaza">Market</el-menu-item>
         <el-menu-item index="/iletisim">İletişim</el-menu-item>
         <el-sub-menu v-if="getToken">
@@ -53,7 +54,7 @@
         router
         @select="handleSelect"
       >
-        <el-menu-item index="0">
+        <el-menu-item index="/" class="border-bottom-0">
           <img src="@/assets/logo.png" width="100" class="m-2" alt="" />
         </el-menu-item>
         <div class="flex-grow" />
@@ -68,6 +69,7 @@
           <el-menu-item index="/etkinlik">Etkinlikler</el-menu-item>
           <el-menu-item index="/blog">Blog</el-menu-item>
           <el-menu-item index="/sponsor">Sponsorlar</el-menu-item>
+          <el-menu-item index="/takim">Takımımız</el-menu-item>
           <el-menu-item index="/magaza">Market</el-menu-item>
           <el-menu-item index="/iletisim">İletişim</el-menu-item>
           <el-sub-menu v-if="getToken">
@@ -103,9 +105,9 @@ export default {
     ...mapGetters(["getToken"]),
   },
   mounted() {
-    this.desktop = window.innerWidth > 1295 ? true : false;
+    this.desktop = window.innerWidth > 1365 ? true : false;
     window.addEventListener("resize", () => {
-      this.desktop = window.innerWidth > 1295 ? true : false;
+      this.desktop = window.innerWidth > 1365 ? true : false;
     });
   },
   methods: {
@@ -114,6 +116,7 @@ export default {
     },
     cikis() {
       this.$store.commit("setToken", "");
+      window.location.href = "/";
     },
   },
 };
@@ -131,7 +134,8 @@ export default {
     background: rgba(0, 0, 0, 0.9);
   }
 }
-.el-menu-item {
-  font-size: 16px !important;
+.el-menu-item,
+.el-sub-menu__title {
+  font-size: 18px !important;
 }
 </style>

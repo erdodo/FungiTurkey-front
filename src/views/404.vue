@@ -1,7 +1,7 @@
 <template>
   <section
     class="page-404 section text-center"
-    style="background: url('/_assets/back.jpg'); background-position: center; background-repeat: no-repeat"
+    style="background: url('/_assets/back.jpg'); background-position: center; background-repeat: no-repeat,background-size: cover;"
   >
     <div class="container">
       <div class="row">

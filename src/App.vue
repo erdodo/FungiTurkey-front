@@ -1,5 +1,5 @@
 <template>
-  <div class="d-none d-sm-flex flex-column justify-content-between" style="min-height: 100vh">
+  <div class="d-flex flex-column justify-content-between" style="min-height: 100vh">
     <div>
       <Header />
       <div style="min-height: 500px">
@@ -7,10 +7,6 @@
       </div>
     </div>
     <Footer />
-  </div>
-  <div class="d-flex mobil flex-column d-sm-none justify-content-center align-items-center">
-    Mobil uygulamamızı denemek ister misiniz?
-    <el-button type="primary">İndir</el-button>
   </div>
 </template>
 <script>
@@ -44,5 +40,8 @@ export default {
 <style>
 .mobil {
   height: 100vh;
+}
+.cursor-pointer {
+  cursor: pointer;
 }
 </style>

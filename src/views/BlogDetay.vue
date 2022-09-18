@@ -17,12 +17,32 @@
 
     <div class="container mb-5" v-loading="load" style="min-height: 300px">
       <div class="d-flex justify-content-center">
-        <img :src="ImgBase + blog.image" alt="" style="max-height: 700px !important" class="img-fluid rounded" />
+        <el-image :src="ImgBase + blog.image" class="img-fluid rounded" fit="cover" style="max-height: 700px !important">
+          <template #placeholder>
+            <div class="w-100 h-100" v-loading="true">Yükleniyor<span class="dot">...</span></div>
+          </template>
+        </el-image>
       </div>
 
       <h2 class="mt-4">{{ blog.title }}</h2>
 
-      <p v-text="blog.content"></p>
+      <p v-html="blog.content"></p>
+      <div class="d-flex justify-content-end">
+        <h5>{{ dateTimeParser(blog.added_date) }}</h5>
+      </div>
+      <div class="card my-3">
+        <div class="p-3 d-flex">
+          <el-image :src="ImgBase + user.image" style="height: 100px; min-width: 100px">
+            <template #placeholder>
+              <div class="image-slot">Loading<span class="dot">...</span></div>
+            </template>
+          </el-image>
+          <div class="ml-4">
+            <h3>{{ user.name }} {{ user.surname }}</h3>
+            <p>{{ user.about }}</p>
+          </div>
+        </div>
+      </div>
     </div>
     <div class="container mb-5">
       <h4>Yorumlar</h4>
@@ -58,10 +78,11 @@ export default {
       comments: [],
       load: true,
       cmm: "",
+      user: [],
     };
   },
   computed: {
-    ...mapGetters(["getToken"]),
+    ...mapGetters(["getToken", "getProfile"]),
   },
   mounted() {
     this.getData();
@@ -72,35 +93,49 @@ export default {
       axios.post("fungitu2_fungiturkey/Blog/" + this.$route.params.id + "/get").then((response) => {
         this.blog = response.data.data;
         this.load = false;
+        this.getUser(this.blog.own_id);
       });
     },
     getComment() {
       let params = {
         filter: {
           blog_id: this.$route.params.id,
+          status: 1,
         },
       };
       axios.post("fungitu2_fungiturkey/BlogComment", params).then((response) => {
         this.comments = response.data.data;
       });
     },
+    getUser(id) {
+      axios.post("fungitu2_Simple/users/" + id + "/get").then((response) => {
+        this.user = response.data.data;
+      });
+    },
     yorumGonder() {
-      axios.post("/profile").then((res) => {
-        var profile = res.data.data;
-        let formData = new FormData();
-        formData.append("name", profile.name);
-        formData.append("surname", profile.surname);
-        formData.append("comment", this.cmm);
-        formData.append("blog_id", this.blog.id);
-        axios.post("fungitu2_fungiturkey/BlogComment/store", formData).then((res) => {
+      if (this.cmm.length < 5) {
+        ElMessageBox.alert("Lütfen en az 5 karakterlik bir yorum giriniz.", "Dikkat", {
+          confirmButtonText: "Tamam",
+        });
+      } else {
+        var profile = this.getProfile;
+        let params = {
+          name: profile.name,
+          surname: profile.surname,
+          comment: this.cmm,
+          blog_id: this.blog.id,
+          member_id: profile.id,
+          status: "0",
+        };
+        axios.post("fungitu2_fungiturkey/BlogComment/store", params).then((res) => {
           if (res.data.status == "success") {
-            ElMessageBox.alert("Yorumunuz başarıyla gönderildi. Teşekkürler.", "Başarılı", {
+            ElMessageBox.alert("Yorumunuz onaylandıktan sonra görüntülenecektir. Teşekkürler.", "Başarılı", {
               confirmButtonText: "Tamam",
             });
             this.getComment();
           }
         });
-      });
+      }
     },
     dateTimeParser,
   },

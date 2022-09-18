@@ -13,63 +13,172 @@
         </div>
       </div>
     </section>
-    <div class="container">
+    <div class="container" v-loading="load">
       <div class="row justify-content-center">
         <div class="col-12 col-sm-9 col-md-7">
-          <div class="form-group mb-4">
-            <label>İsim:</label>
-            <input type="text" placeholder="İsim" class="form-control" v-model="profile.name" />
-          </div>
-          <div class="form-group mb-4">
-            <label>Soyisim:</label>
-            <input type="text" placeholder="Soyisim" class="form-control" v-model="profile.surname" />
-          </div>
-          <div class="form-group mb-4">
-            <label>Telefon:</label>
-            <input type="text" placeholder="Telefon" class="form-control" v-model="profile.phone" />
-          </div>
-          <div class="form-group mb-4">
-            <label>Email:</label>
-            <input type="text" placeholder="Email" class="form-control" v-model="profile.mail" />
-          </div>
-          <div class="form-group mb-4">
-            <label>Şifre:</label>
-            <input type="password" placeholder="Şifre" class="form-control" v-model="profile.password" />
-          </div>
-          <div class="mb-4">
-            <button class="btn btn-primary">Kaydet</button>
+          <template v-for="(c, name) in columns" :key="name">
+            <label class="mt-3" v-if="name != 'password'">{{ c.display }}: </label>
+            <input
+              v-if="c.name == 'phone'"
+              v-model="params[name]"
+              v-mask="'+90(###) ### ## ##'"
+              type="text"
+              :ref="name"
+              :placeholder="c.display"
+              class="form-control"
+            />
+            <template v-else-if="c.name == 'password'"></template>
+            <div v-else-if="c.type == 'file'" class="d-flex">
+              <div v-if="params[name] != null">
+                <el-button type="danger" style="" class="image-remover" circle @click="imageRemove(name)"> X </el-button>
+                <img :src="ImgBase + params[name]" height="200" class="rounded" alt="" />
+              </div>
+              <input type="file" :ref="name" :placeholder="c.display" class="form-control mx-2" />
+            </div>
+
+            <input
+              v-else-if="c.type == 'varchar'"
+              v-model="params[name]"
+              type="text"
+              :ref="name"
+              :placeholder="c.display"
+              class="form-control"
+            />
+            <input
+              v-else-if="c.type == 'int' || c.type == 'smallint'"
+              type="number"
+              v-model="params[name]"
+              :ref="name"
+              :placeholder="c.display"
+              class="form-control"
+            />
+            <input
+              v-else-if="c.type == 'datetime'"
+              type="datetime-local"
+              v-model="params[name]"
+              :ref="name"
+              :placeholder="c.display"
+              class="form-control"
+            />
+            <textarea
+              v-else-if="c.type == 'text'"
+              v-model="params[name]"
+              :ref="name"
+              :placeholder="c.display"
+              class="form-control"
+            />
+            <div v-else-if="c.type == 'tinyint' || c.type == 'bit'">
+              <el-switch v-model="params[name]" :ref="name" />
+            </div>
+          </template>
+          <div class="d-flex justify-content-between mt-3">
+            <el-button type="warning" @click="passChangeState = true">Şifre değiştir</el-button>
+            <el-button type="primary" @click="save()">Kaydet</el-button>
           </div>
         </div>
       </div>
     </div>
+    <pass-change :dialogVisible="passChangeState" @success="passChangeState = false" />
   </div>
 </template>
 
 <script>
 import axios from "axios";
+import { mapGetters } from "vuex";
+import { mask } from "vue-the-mask";
+import { ElNotification } from "element-plus";
+import passChange from "../modals/passChange.vue";
 export default {
+  components: { passChange },
+  directives: { mask },
   data() {
     return {
-      profile: {},
+      columns: {},
+      params: {},
+      msg: {},
+      passChangeState: false,
+      load: false,
     };
   },
-
+  computed: {
+    ...mapGetters(["getProfile"]),
+  },
   mounted() {
     this.getData();
   },
   methods: {
     getData() {
+      this.load = true;
       let params = {
         filter: {
           token: this.$store.getters.getToken,
         },
       };
-      axios.post("profile", params).then((res) => {
-        this.profile = res.data.data;
-      });
+      axios
+        .post("/fungitu2_Simple/users/" + this.getProfile.id + "/edit", params)
+        .then((res) => {
+          this.columns = res.data.columns;
+          this.params = res.data.data;
+        })
+        .finally(() => {
+          this.load = false;
+        });
+    },
+    save() {
+      this.load = true;
+      let formData = new FormData();
+      for (const [key, val] of Object.entries(this.columns)) {
+        if (val.type == "file") {
+          console.log(this.$refs.image?.[0]?.files[0]);
+          if (this.$refs.image?.[0]?.files[0] != undefined) {
+            formData.append(key, this.$refs.image?.[0]?.files[0]);
+          } else {
+            formData.append(key, this.params[key] == undefined ? "" : this.params[key]);
+          }
+        } else if (val.type == "tinyint" || val.type == "bit") {
+          formData.append(key, this.params[key] == undefined ? "" : this.params[key] ? "1" : "0");
+        } else {
+          formData.append(key, this.params[key] == undefined ? "" : this.params[key]);
+        }
+        console.log(key, val);
+      }
+      axios
+        .post("/fungitu2_Simple/users/" + this.getProfile.id + "/update", formData)
+        .then((res) => {
+          if (res.data.status == "success") {
+            ElNotification({
+              title: "Başarılı!",
+              message: "Düzenleme işlemi başarıyla gerçekleşti.",
+              type: "success",
+            });
+            this.params = res.data.data;
+          }
+        })
+        .finally(() => {
+          this.load = false;
+        });
+    },
+    validateEmail() {
+      if (!/^\w+([\\.-]?\w+)*@\w+([\\.-]?\w+)*(\.\w{2,3})+$/.test(this.params.email)) {
+        this.msg["email"] = "Epostanızı kontrol ediniz.";
+      } else {
+        this.msg["email"] = "";
+      }
+    },
+    imageRemove(name) {
+      this.prm[name] = "";
     },
   },
 };
 </script>
 
-<style></style>
+<style>
+.image-remover {
+  padding-left: 10px !important;
+  padding-right: 10px !important;
+  position: absolute;
+  margin-top: 10px;
+  margin-left: 10px;
+  cursor: pointer;
+}
+</style>

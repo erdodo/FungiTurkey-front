@@ -62,7 +62,7 @@
           <!-- / End Contact Details -->
 
           <!-- Contact Form -->
-          <div class="contact-form col-md-6">
+          <div class="contact-form col-md-6" v-loading="load">
             <div class="form-group mb-4">
               <span v-if="getProfile">
                 {{ getProfile.name }} {{ getProfile.surname }}
@@ -86,8 +86,9 @@
             <div class="form-group mb-4">
               <textarea rows="6" placeholder="Mesajınız" class="form-control" v-model="message"></textarea>
             </div>
+
             <div id="cf-submit">
-              <input id="contact-submit" class="btn btn-transparent" value="Gönder" @click="gonder()" />
+              <el-button type="primary" class="w-100" @click="gonder()">Gönder</el-button>
             </div>
           </div>
           <!-- ./End Contact Form -->
@@ -117,6 +118,7 @@
 <script>
 import axios from "axios";
 import { mapGetters } from "vuex";
+import { ElNotification } from "element-plus";
 export default {
   data() {
     return {
@@ -143,13 +145,31 @@ export default {
       });
     },
     gonder() {
-      const formData = new FormData();
-      formData.append("name", this.name);
-      formData.append("email", this.email);
-      formData.append("subject", this.subject);
-      formData.append("message", this.message);
+      if (this.email.length < 3 || this.name.length < 3 || this.subject.length < 3 || this.message.length < 3) {
+        ElNotification({
+          title: "Dikkat",
+          message: "Boş alanları doldurunuz!",
+          type: "info",
+        });
+      } else {
+        this.load = true;
+        const formData = new FormData();
+        formData.append("name", this.name);
+        formData.append("email", this.email);
+        formData.append("subject", this.subject);
+        formData.append("message", this.message);
 
-      axios.post("fungitu2_fungiturkey/Feedbacks/store", formData);
+        axios.post("fungitu2_fungiturkey/Feedbacks/store", formData).then((res) => {
+          if (res.data.status == "success") {
+            ElNotification({
+              title: "Başarılı",
+              message: "Mesaj başarıyla düzenlendi",
+              type: "success",
+            });
+            this.load = false;
+          }
+        });
+      }
     },
   },
 };

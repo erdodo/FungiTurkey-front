@@ -1,6 +1,6 @@
 <template>
   <div>
-    <el-dialog v-model="state" title="Üye Ol" width="400px" top="5vh" :before-close="handleClose">
+    <el-dialog v-model="state" title="Üye Ol" v-loading="load" width="400px" top="5vh" :before-close="handleClose">
       <div v-for="r in registerData" :key="r">
         <label class="mt-2 mb-0">{{ r.display }}:</label>
         <el-input
@@ -57,6 +57,7 @@ export default {
       registerData: {},
       params: {},
       msg: {},
+      load: false,
     };
   },
   mounted() {
@@ -67,21 +68,35 @@ export default {
       this.loginState++;
     },
     register() {
-      axios.post("/register", this.params).then((res) => {
-        if (res.data.status == "success") {
-          ElNotification({
-            title: "Başarılı",
-            message: "Kayıt başarıyla gönderildi.",
-            type: "success",
-          });
-          this.state = false;
-          this.login();
-        }
-      });
+      this.load = true;
+      axios
+        .post("/register", this.params)
+        .then((res) => {
+          if (res.data.status == "success") {
+            ElNotification({
+              title: "Başarılı",
+              message: res.data.message,
+              type: "success",
+            });
+            this.state = false;
+            this.login();
+          } else {
+            ElNotification({
+              title: "Başarılı",
+              message: res.data.message,
+              type: "error",
+            });
+          }
+        })
+        .finally(() => {
+          this.load = false;
+        });
     },
     getCreateData() {
+      this.load = true;
       axios.post("/fungitu2_Simple/users/create").then((res) => {
         this.registerData = res.data.columns;
+        this.load = false;
       });
     },
     validateEmail() {
