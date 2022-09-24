@@ -1,6 +1,12 @@
 <template>
   <div v-if="dialogState">
-    <el-dialog v-model="dialogState" v-loading="load" :title="dialogData.title" width="400px" @open="deneme">
+    <el-dialog
+      v-model="dialogState"
+      v-loading="load"
+      :title="dialogData.title"
+      :width="dialogData.room_status == '1' ? '100%' : '400px'"
+      @open="deneme"
+    >
       <div class="d-flex flex-column text-center justify-content-center align-items-center">
         <label for="">Kaç kişi katılacaksınız?</label>
         <el-input-number v-model="count" placeholder="Kaç Kişi?" :max="limit" :min="1"></el-input-number>
@@ -12,6 +18,33 @@
           class="mt-0"
           size="large"
         />
+        <h5 class="text-primary" v-if="dialogData.room_status == '1'">
+          Aşağıdan kiralamak istediğiniz odayı seçebilirsiniz
+        </h5>
+      </div>
+
+      <div class="d-flex" v-if="dialogData.room_status == '1'">
+        <el-card
+          class="mr-2"
+          :class="selected_room == room.id ? 'border-primary' : ''"
+          @click="selected_room = room.id"
+          v-for="room in rooms"
+          :key="room"
+        >
+          <div class="d-flex flex-column">
+            <el-image :src="ImgBase + room.image" style="width: 200px">
+              <template #placeholder>
+                <div class="image-slot">Loading<span class="dot">...</span></div>
+              </template>
+            </el-image>
+            <h5 class="mt-2">{{ room.room_name }} / {{ room.room_no }}</h5>
+            <span> {{ room.price }}TL (Kişi Başı) </span>
+            <span> {{ room.quota }} Kişilik </span>
+
+            <p v-html="room.content"></p>
+            <label v-if="selected_room == room.id" class="text-primary">Seçili</label>
+          </div>
+        </el-card>
       </div>
 
       <template #footer>
@@ -39,6 +72,8 @@ export default {
       checked1: false,
       sozlesmeState: false,
       load: false,
+      rooms: [],
+      selected_room: 0,
     };
   },
   mounted() {},
@@ -81,11 +116,19 @@ export default {
         });
       }
     },
+    getRoom() {
+      axios.post("fungitu2_fungiturkey/ActivityRoom").then((res) => {
+        this.rooms = res.data.data;
+      });
+    },
   },
   watch: {
     kayitDialog() {
       //this.activityRecordCreate();
       this.dialogState = this.kayitDialog;
+      if (this.dialogData.room_status == "1") {
+        this.getRoom();
+      }
     },
     dialogState() {
       this.$emit("dialogState", this.dialogState);
