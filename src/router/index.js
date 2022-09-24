@@ -88,16 +88,6 @@ const routes = [
   },
 
   {
-    path: "/admin/create/:database/:table_name",
-    name: "Create",
-    component: () => import("@/views/admin/create.vue"),
-  },
-  {
-    path: "/admin",
-    name: "Admin",
-    component: () => import("@/views/admin/home.vue"),
-  },
-  {
     path: "/:pathMatch(.*)*",
     name: "404",
     component: () => import("@/views/404.vue"),
