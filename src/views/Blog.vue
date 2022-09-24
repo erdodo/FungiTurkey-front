@@ -49,6 +49,7 @@ export default {
   methods: {
     getData() {
       const params = {
+        limit: 2,
         filter: {
           status: 1,
         },

@@ -31,7 +31,7 @@
                     <div class="mx-1">
                       <h5>{{ activities[a.activity_id]?.title }}</h5>
                       <p>
-                        Kordinatör: <a class="text-warning ml-2"> {{ activities[a.activity_id]?.director }} Kişi</a>
+                        Kordinatör: <a class="text-warning ml-2"> {{ activities[a.activity_id]?.director }} </a>
                       </p>
                       <p>
                         Toplam Ücret:

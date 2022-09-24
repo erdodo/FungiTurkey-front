@@ -6,9 +6,9 @@
           <img class="slider-back" src="" :id="slide.image" alt="" />
 
           <div class="slider-content" style="background: rgba(0, 0, 0, 0.6)">
-            <div class="row justify-content-md-center">
-              <div class="col-11 col-sm-9 col-md-7">
-                <h1 class="display-3">{{ slide.title }}</h1>
+            <div class="row justify-content-center text-center">
+              <div class="col-11 col-md-9 text-center">
+                <h1 class="display-3 w-100 d-flex justify-content-center">{{ slide.title }}</h1>
                 <p class="h4 text-white m-0 p-0">{{ slide.content }}</p>
                 <router-link :to="slide.button_href" class="btn btn-outline-warning rounded-pill mt-2">
                   {{ slide.button_title }}

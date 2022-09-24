@@ -18,7 +18,7 @@
       <div class="row">
         <template v-for="a in services" :key="a">
           <div class="col-12 col-sm-6 col-md-4">
-            <div class="p-2 text-center">
+            <div class="p-2 text-center cursor-pointer" @click="(detayVisible = true), (id = a.id)">
               <img :src="ImgBase + a.image" alt="" class="w-100 rounded" />
               <h4 class="mt-3">{{ a.title }}</h4>
               <div v-html="a.content"></div>
@@ -27,16 +27,21 @@
         </template>
       </div>
     </div>
+    <organizasyon-detay :visible="detayVisible" @visible="detayVisible = $event" :id="this.id"></organizasyon-detay>
   </div>
 </template>
 
 <script>
 import axios from "axios";
+import OrganizasyonDetay from "./OrganizasyonDetay.vue";
 export default {
+  components: { OrganizasyonDetay },
   data() {
     return {
       services: [],
       load: true,
+      detayVisible: false,
+      id: 0,
     };
   },
   mounted() {

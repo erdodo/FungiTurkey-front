@@ -19,15 +19,10 @@
         </el-menu-item>
         <div class="flex-grow" />
         <el-menu-item index="/">Anasayfa</el-menu-item>
-        <el-menu-item index="/hakkimizda">Hakkımızda</el-menu-item>
-        <el-menu-item index="/organizasyon">Organizasyonumuz</el-menu-item>
-        <el-menu-item index="/galeri">Galeri</el-menu-item>
-        <el-menu-item index="/etkinlik">Etkinlikler</el-menu-item>
-        <el-menu-item index="/blog">Blog</el-menu-item>
-        <el-menu-item index="/sponsor">Sponsorlar</el-menu-item>
-        <el-menu-item index="/takim">Takımımız</el-menu-item>
-        <el-menu-item index="/magaza">Market</el-menu-item>
-        <el-menu-item index="/iletisim">İletişim</el-menu-item>
+        <el-menu-item :index="m.table_name" v-for="m in menu" :key="m"
+          ><i :class="m.icon" class="me-1"></i> {{ m.display_name }}</el-menu-item
+        >
+
         <el-sub-menu v-if="getToken">
           <template #title>Profil</template>
           <el-menu-item index="/profil"><span class="text-dark">Bilgilerim</span></el-menu-item>
@@ -63,15 +58,9 @@
             ><h2 class="text-warning"><i class="bi bi-list"></i></h2
           ></template>
           <el-menu-item index="/">Anasayfa</el-menu-item>
-          <el-menu-item index="/hakkimizda">Hakkımızda</el-menu-item>
-          <el-menu-item index="/organizasyon">Organizasyonumuz</el-menu-item>
-          <el-menu-item index="/galeri">Galeri</el-menu-item>
-          <el-menu-item index="/etkinlik">Etkinlikler</el-menu-item>
-          <el-menu-item index="/blog">Blog</el-menu-item>
-          <el-menu-item index="/sponsor">Sponsorlar</el-menu-item>
-          <el-menu-item index="/takim">Takımımız</el-menu-item>
-          <el-menu-item index="/magaza">Market</el-menu-item>
-          <el-menu-item index="/iletisim">İletişim</el-menu-item>
+          <el-menu-item :index="m.table_name" v-for="m in menu" :key="m"
+            ><i :class="m.icon" class="me-1"></i>{{ m.display_name }}</el-menu-item
+          >
           <el-sub-menu v-if="getToken">
             <template #title class="text-dark">Profil</template>
             <el-menu-item index="/profil">Bilgilerim</el-menu-item>
@@ -92,6 +81,7 @@
 <script>
 import Register from "../login/register.vue";
 import { mapGetters } from "vuex";
+import axios from "axios";
 export default {
   components: { Register },
   data() {
@@ -99,12 +89,14 @@ export default {
       desktop: true,
       token: localStorage.getItem("token"),
       registerState: 0,
+      menu: {},
     };
   },
   computed: {
     ...mapGetters(["getToken"]),
   },
   mounted() {
+    this.getMenu();
     this.desktop = window.innerWidth > 1365 ? true : false;
     window.addEventListener("resize", () => {
       this.desktop = window.innerWidth > 1365 ? true : false;
@@ -117,6 +109,19 @@ export default {
     cikis() {
       this.$store.commit("setToken", "");
       window.location.href = "/";
+    },
+    getMenu() {
+      const params = {
+        filter: {
+          status: "1",
+        },
+      };
+      axios.defaults.baseURL = "https://api.fungiturkey.org/api/";
+      axios.defaults.headers.common["token"] = this.getToken;
+      axios.defaults.headers.common["Content-Type"] = "application/json";
+      axios.post("fungitu2_fungiturkey/Menu", params).then((res) => {
+        this.menu = res.data.data;
+      });
     },
   },
 };

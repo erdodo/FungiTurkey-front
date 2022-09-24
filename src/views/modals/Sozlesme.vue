@@ -1,6 +1,6 @@
 <template>
   <el-dialog v-model="state" title="Sözleşme" width="50%" :before-close="handleClose">
-    <div v-html="sozlesme"></div>
+    <div style="word-break: normal" v-html="sozlesme"></div>
     <template #footer>
       <span class="dialog-footer">
         <el-button type="primary" @click="$emit('success'), (state = false)">Onayla</el-button>

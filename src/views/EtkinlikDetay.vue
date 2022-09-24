@@ -63,7 +63,7 @@
           </span>
           <a class="text-dark">{{ activity.quota }} Kişi</a>
         </h6>
-        <h6 class="d-flex align-items-baseline mt-1">
+        <h6 class="d-flex align-items-baseline mt-1" v-if="activity.quota - activityRecordsCount <= 3">
           <span class="mr-3 text-success">
             <el-icon class="mr-2 mb-0"><User /> </el-icon>Kalan Kontenjan:
           </span>
@@ -71,7 +71,7 @@
         </h6>
 
         <button
-          v-if="activity.status_record == 1 && !getToken && activityRecords.length <= 0"
+          v-if="activity.status_record == 1 && !getToken"
           size="large"
           class="btn btn-outline-warning my-2"
           @click="login()"
@@ -143,7 +143,6 @@
       :kota="activity.quota"
       :kayit="activityRecordsCount"
     />
-    {{ this.activityRecords[0] }}
   </div>
 </template>
 

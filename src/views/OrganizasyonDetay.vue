@@ -1,54 +1,49 @@
 <template>
   <div>
-    <section class="single-page-header mb-5" style="background: url('/_assets/HeaderBack.jpeg')">
-      <div class="container">
-        <div class="row">
-          <div class="col-md-12">
-            <h2>Organizasyonumuz</h2>
-            <ol class="breadcrumb header-bradcrumb justify-content-center">
-              <li class="breadcrumb-item"><router-link to="/" class="text-white">Ana Sayfa</router-link></li>
-              <li class="breadcrumb-item active" aria-current="page">Organizasyonumuz</li>
-            </ol>
-          </div>
-        </div>
+    <el-dialog v-model="dialogVisible" :Title="services?.title" width="60%" :before-close="handleClose">
+      <div class="p-2 text-center">
+        <el-image :src="ImgBase + services?.image" class="w-100 rounded">
+          <template #placeholder>
+            <div class="image-slot">YÜKLENİYOR<span class="dot">...</span></div>
+          </template>
+        </el-image>
+        <h4 class="mt-3">{{ services?.title }}</h4>
+        <p v-html="services?.content"></p>
       </div>
-    </section>
-
-    <div class="container" v-loading="load" style="min-height: 300px">
-      <div class="row">
-        <div class="col-12">
-          <div class="p-2 text-center">
-            <img :src="ImgBase + services.image" alt="" class="w-100 rounded" />
-            <h4 class="mt-3">{{ services.title }}</h4>
-            <p>
-              {{ services.content }}
-            </p>
-          </div>
-        </div>
-      </div>
-    </div>
+    </el-dialog>
   </div>
 </template>
 
 <script>
 import axios from "axios";
 export default {
+  props: ["visible", "id"],
   data() {
     return {
       services: [],
       load: true,
+      dialogVisible: false,
     };
   },
-  mounted() {
-    this.getData();
-  },
+  mounted() {},
   methods: {
     getData() {
       this.load = true;
-      axios.post("fungitu2_fungiturkey/Services/" + this.$route.params.id + "/get").then((response) => {
+      axios.post("fungitu2_fungiturkey/Services/" + this.id + "/get").then((response) => {
         this.services = response.data.data;
         this.load = false;
       });
+    },
+  },
+  watch: {
+    visible() {
+      this.dialogVisible = this.visible;
+    },
+    dialogVisible() {
+      this.$emit("visible", this.dialogVisible);
+    },
+    id() {
+      this.getData();
     },
   },
 };

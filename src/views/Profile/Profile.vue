@@ -28,12 +28,14 @@
               class="form-control"
             />
             <template v-else-if="c.name == 'password'"></template>
-            <div v-else-if="c.type == 'file'" class="d-flex">
-              <div v-if="params[name] != null">
+            <div v-else-if="c.type == 'file'" class="row">
+              <div v-if="params[name]" class="position-relative col-12 col-md-6">
                 <el-button type="danger" style="" class="image-remover" circle @click="imageRemove(name)"> X </el-button>
-                <img :src="ImgBase + params[name]" height="200" class="rounded" alt="" />
+                <img :src="ImgBase + params[name]" class="rounded" style="max-height: 250px; max-width: 100%" alt="" />
               </div>
-              <input type="file" :ref="name" :placeholder="c.display" class="form-control mx-2" />
+              <div class="mt-2 mt-md-0 col-12 text-center" :class="params[name] ? 'col-md-6' : 'col-md-12'">
+                <input type="file" :ref="name" :placeholder="c.display" class="form-control" />
+              </div>
             </div>
 
             <input
@@ -126,10 +128,10 @@ export default {
     },
     save() {
       this.load = true;
-      let formData = new FormData();
+      const formData = new FormData();
+
       for (const [key, val] of Object.entries(this.columns)) {
         if (val.type == "file") {
-          console.log(this.$refs.image?.[0]?.files[0]);
           if (this.$refs.image?.[0]?.files[0] != undefined) {
             formData.append(key, this.$refs.image?.[0]?.files[0]);
           } else {
@@ -140,7 +142,6 @@ export default {
         } else {
           formData.append(key, this.params[key] == undefined ? "" : this.params[key]);
         }
-        console.log(key, val);
       }
       axios
         .post("/fungitu2_Simple/users/" + this.getProfile.id + "/update", formData)
@@ -166,7 +167,7 @@ export default {
       }
     },
     imageRemove(name) {
-      this.prm[name] = "";
+      this.params[name] = "";
     },
   },
 };
