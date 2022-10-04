@@ -98,7 +98,7 @@ export default {
         },
       };
       axios
-        .post("fungitu2_fungiturkey/ActivityComment", params)
+        .post(this.fungi + "/ActivityComment", params)
         .then((response) => {
           this.comments = response.data.data;
           for (const val of Object.values(this.comments)) {
@@ -116,7 +116,7 @@ export default {
     duzenleOnay() {
       this.load = true;
       axios
-        .post("fungitu2_fungiturkey/ActivityComment/" + this.islemData.id + "/update", {
+        .post(this.fungi + "/ActivityComment/" + this.islemData.id + "/update", {
           comment: this.islemData.comment,
           status: "0",
         })
@@ -136,7 +136,7 @@ export default {
         });
     },
     sil(c) {
-      axios.post("fungitu2_fungiturkey/ActivityComment/" + c.id + "/delete").then((res) => {
+      axios.post(this.fungi + "/ActivityComment/" + c.id + "/delete").then((res) => {
         if (res.data.status == "success") {
           ElNotification({
             title: "Başarılı",
@@ -152,7 +152,7 @@ export default {
       this.load = true;
 
       axios
-        .post("fungitu2_fungiturkey/Activity/" + id + "/get")
+        .post(this.fungi + "/Activity/" + id + "/get")
         .then((response) => {
           this.activitys[id] = response.data.data;
         })

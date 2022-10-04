@@ -17,7 +17,7 @@
     <div class="container" v-loading="load" style="min-height: 300px">
       <div class="row">
         <template v-for="a in sponsor" :key="a">
-          <div class="col-12 col-sm-6 col-md-4 p-2">
+          <div class="col-12 col-sm-6 col-md-4 p-2 mt-2">
             <div class="border-right border-left">
               <a class="p-2 text-center sponsor-card" :href="a.WebSite" target="_blank">
                 <div :style="{ background: 'url(' + ImgBase + a.image + ')' }" class="sponsor-image rounded"></div>
@@ -29,6 +29,17 @@
             </div>
           </div>
         </template>
+        <div class="col-12 mt-4">
+          <div class="w-100 d-flex justify-content-center">
+            <el-pagination
+              :page-size="limit"
+              :pager-count="3"
+              @current-change="setPage($event)"
+              layout="prev, pager, next"
+              :total="count"
+            />
+          </div>
+        </div>
       </div>
     </div>
   </div>
@@ -42,6 +53,9 @@ export default {
     return {
       sponsor: [],
       load: true,
+      count: 0,
+      limit: 6,
+      page: 1,
     };
   },
   mounted() {
@@ -51,14 +65,25 @@ export default {
     getData() {
       this.load = true;
       const params = {
+        limit: this.limit,
+        page: this.page,
         filter: {
           status: 1,
         },
+         order: {
+          name: "id",
+          type: "DESC",
+        },
       };
-      axios.post("fungitu2_fungiturkey/Sponsor", params).then((response) => {
+      axios.post(this.fungi + "/Sponsor", params).then((response) => {
         this.sponsor = response.data.data;
         this.load = false;
+        this.count = response.data.count;
       });
+    },
+    setPage(e) {
+      this.page = e;
+      this.getData();
     },
     dateTimeParser,
   },

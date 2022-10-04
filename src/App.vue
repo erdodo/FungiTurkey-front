@@ -28,11 +28,28 @@ export default {
 
     axios.defaults.headers.common["token"] = this.getToken;
     axios.defaults.headers.common["Content-Type"] = "application/json";
-    axios.defaults.baseURL = "https://api.fungiturkey.org/api/";
+    axios.defaults.baseURL = this.api + "api/";
+    if (this.getToken != undefined) {
+      axios
+        .post("/token_control")
+        .then((res) => {
+          if (res.data.status == "error") {
+            localStorage.clear();
+            window.location.href = "/";
+          }
+        })
+        .catch(() => {
+          localStorage.clear();
+          window.location.href = "/";
+        });
+    }
   },
   watch: {
     getToken() {
       axios.defaults.headers.common["token"] = this.getToken;
+    },
+    $route() {
+      console.log("route");
     },
   },
 };

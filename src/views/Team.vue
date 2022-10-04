@@ -24,14 +24,43 @@
                 <div class="">
                   <h4 class="mt-3 text-dark">{{ a.name }} {{ a.surname }}</h4>
                   <h4 class="mt-3 text-dark">{{ a.job }}</h4>
-                  <p class="mx-1" v-html="a.description"></p>
+                  <p class="mx-1" v-html="a.content"></p>
+                  <el-button @click="detay(a.id)">Devamı...</el-button>
                 </div>
               </a>
             </div>
           </div>
         </template>
+        <div class="col-12 mt-4">
+          <div class="w-100 d-flex justify-content-center">
+            <el-pagination
+              :page-size="limit"
+              :pager-count="3"
+              @current-change="setPage($event)"
+              layout="prev, pager, next"
+              :total="count"
+            />
+          </div>
+        </div>
       </div>
     </div>
+    <el-dialog v-loading="load" v-model="dialogVisible" title="Detaylar" width="400px" :before-close="handleClose">
+      <el-image :src="ImgBase + detaylar.image">
+        <template #placeholder>
+          <div class="image-slot">Yükleniyor<span class="dot">...</span></div>
+        </template>
+      </el-image>
+      <div class="w-100 text-center mt-4">
+        <h4>{{ detaylar.name }} {{ detaylar.surname }}</h4>
+        <h5>{{ detaylar.job }}</h5>
+      </div>
+      <p v-html="detaylar.content"></p>
+      <template #footer>
+        <span class="dialog-footer">
+          <el-button @click="dialogVisible = false">Kapat</el-button>
+        </span>
+      </template>
+    </el-dialog>
   </div>
 </template>
 
@@ -43,6 +72,11 @@ export default {
     return {
       team: [],
       load: true,
+      detaylar: {},
+      dialogVisible: false,
+      count: 0,
+      limit: 6,
+      page: 1,
     };
   },
   mounted() {
@@ -52,12 +86,36 @@ export default {
     getData() {
       this.load = true;
       const params = {
+        limit: this.limit,
+        page: this.page,
+        filter: {
+          status: 1,
+        },
+        order: {
+          name: "id",
+          type: "DESC",
+        },
+      };
+      axios.post(this.fungi + "/Team", params).then((response) => {
+        this.team = response.data.data;
+        this.load = false;
+        this.count = response.data.count;
+      });
+    },
+    setPage(e) {
+      this.page = e;
+      this.getData();
+    },
+    detay(id) {
+      this.dialogVisible = true;
+      this.load = true;
+      const params = {
         filter: {
           status: 1,
         },
       };
-      axios.post("fungitu2_fungiturkey/Team", params).then((response) => {
-        this.team = response.data.data;
+      axios.post(this.fungi + "/Team/" + id + "/get", params).then((response) => {
+        this.detaylar = response.data.data;
         this.load = false;
       });
     },

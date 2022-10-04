@@ -61,13 +61,13 @@
           <span class="mr-3 text-success">
             <el-icon class="mr-2 mb-0"><User /> </el-icon>Kontenjan:
           </span>
-          <a class="text-dark">{{ activity.quota }} Kişi</a>
+          <a class="text-dark">{{ kota }} Kişi </a>
         </h6>
-        <h6 class="d-flex align-items-baseline mt-1" v-if="activity.quota - activityRecordsCount <= 3">
+        <h6 class="d-flex align-items-baseline mt-1">
           <span class="mr-3 text-success">
             <el-icon class="mr-2 mb-0"><User /> </el-icon>Kalan Kontenjan:
           </span>
-          <a class="text-dark">{{ activity.quota - activityRecordsCount }} Kişi</a>
+          <a class="text-dark">{{ kota }} Kişi</a>
         </h6>
 
         <button
@@ -79,9 +79,7 @@
           Kayıt Olmak İçin Giriş Yap
         </button>
         <button
-          v-if="
-            activity.status_record == 1 && getToken && activityRecords.length <= 0 && activityRecordsCount < activity.quota
-          "
+          v-if="activity.status_record == 1 && getToken && my_records.length <= 0 && activityRecordsCount < kota"
           size="large"
           class="btn btn-outline-warning my-2"
           @click="kayitDialogEvent(activity)"
@@ -89,7 +87,7 @@
           Etkinliğe Katıl
         </button>
         <button
-          v-else-if="activity.status_record == 1 && getToken && activityRecords.length <= 0"
+          v-else-if="activity.status_record == 1 && getToken && my_records.length <= 0"
           size="large"
           class="btn btn-outline-danger my-2"
         >
@@ -97,7 +95,7 @@
         </button>
 
         <button
-          v-if="activityRecords.length > 0 && activityRecords[0]?.price_status == '0'"
+          v-if="activityRecords.length > 0 && my_records[0]?.price_status == '0'"
           class="btn btn-outline-success my-2"
           @click="recordDialogState = true"
         >
@@ -112,7 +110,9 @@
       <div v-if="getToken">
         <el-input v-model="cmm" maxlength="300" placeholder="Yorumunuz..." show-word-limit type="textarea" />
         <div class="w-100 d-flex justify-content-end">
-          <el-button :disabled="load" type="primary" class="mt-3" @click="yorumGonder()"> Gönder</el-button>
+          <el-button :disabled="load" type="primary" :loading="buttonLoad" class="mt-3" @click="yorumGonder()">
+            Gönder</el-button
+          >
         </div>
         <el-divider />
       </div>
@@ -131,16 +131,15 @@
     <activity-record
       :kayitDialog="this.kayitDialog"
       :dialogData="this.dialogData"
-      @dialogState="kayitDialog = $event"
-      :limit="activity.quota - activityRecordsCount"
+      @dialogState="(kayitDialog = $event), this.getData()"
+      :limit="kota - activityRecordsCount"
     ></activity-record>
+
     <activity-record-edit
-      v-if="activityRecords.length > 0"
-      :record="this.activityRecords[0]"
+      :records="my_records"
       :visible="recordDialogState"
-      @visible="recordDialogState = $event"
-      :benim="this.activityRecords[0].people_count"
-      :kota="activity.quota"
+      @visible="(recordDialogState = $event), this.getData()"
+      :activity="activity"
       :kayit="activityRecordsCount"
     />
   </div>
@@ -162,13 +161,15 @@ export default {
       modalData: false,
       comments: [],
       load: true,
+      buttonLoad: false,
       kayitDialog: false,
       dialogData: {},
       loginState: 0,
       cmm: "",
-      activityRecords: [],
+      my_records: [],
       recordDialogState: false,
       activityRecordsCount: 0,
+      kota: 0,
     };
   },
   computed: {
@@ -183,20 +184,27 @@ export default {
   methods: {
     getData() {
       this.load = true;
-      axios.post("fungitu2_fungiturkey/Activity/" + this.$route.params.id + "/get").then((response) => {
+      axios.post(this.fungi + "/Activity/" + this.$route.params.id + "/get").then((response) => {
         this.activity = response.data.data;
+        this.activity.quota = this.activity.quota > 0 ? this.activity.quota : 0;
+        this.kota = parseFloat(this.activity.quota);
       });
       this.load = false;
     },
     getRecord() {
+      //benim kayıtlarım
       const params = {
         filter: {
           own_id: this.getProfile?.id,
           activity_id: this.$route.params.id,
         },
+        order: {
+          name: "id",
+          type: "DESC",
+        },
       };
-      axios.post("fungitu2_fungiturkey/ActivityRecord", params).then((response) => {
-        this.activityRecords = response.data.data;
+      axios.post(this.fungi + "/ActivityRecord", params).then((response) => {
+        this.my_records = response.data.data;
         this.load = false;
       });
     },
@@ -207,9 +215,14 @@ export default {
           activity_id: this.$route.params.id,
           status: 1,
         },
+        order: {
+          name: "id",
+          type: "DESC",
+        },
       };
-      axios.post("fungitu2_fungiturkey/ActivityComment", params).then((response) => {
+      axios.post(this.fungi + "/ActivityComment", params).then((response) => {
         this.comments = response.data.data;
+        this.buttonLoad = false;
       });
       this.load = false;
     },
@@ -220,7 +233,7 @@ export default {
           status: "1",
         },
       };
-      axios.post("fungitu2_fungiturkey/ActivityRecord", params).then((response) => {
+      axios.post(this.fungi + "/ActivityRecord", params).then((response) => {
         let activityRecords = response.data.data;
         for (const val of Object.values(activityRecords)) {
           this.activityRecordsCount += parseFloat(val.people_count);
@@ -234,7 +247,7 @@ export default {
           confirmButtonText: "Tamam",
         });
       } else {
-        this.load = true;
+        this.buttonLoad = true;
         var profile = this.getProfile;
         let formData = new FormData();
         formData.append("name", profile.name);
@@ -243,12 +256,12 @@ export default {
         formData.append("activity_id", this.activity.id);
         formData.append("member_id", profile.id);
         formData.append("status", "0");
-        axios.post("fungitu2_fungiturkey/ActivityComment/store", formData).then((res) => {
+        axios.post(this.fungi + "/ActivityComment/store", formData).then((res) => {
           if (res.data.status == "success") {
             ElMessageBox.alert("Yorumunuz başarıyla gönderildi. Teşekkürler.", "Başarılı", {
               confirmButtonText: "Tamam",
             });
-            this.load = false;
+
             this.getComment();
           }
         });

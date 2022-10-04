@@ -40,13 +40,18 @@ export default {
   },
   methods: {
     getData() {
+      this.load = true;
       let params = {
         filter: {
           status: 1,
         },
+         order: {
+          name: "id",
+          type: "DESC",
+        },
       };
       axios
-        .post("fungitu2_fungiturkey/Slider", params)
+        .post(this.fungi + "/Slider", params)
         .then((response) => {
           this.slides = response.data.data;
           this.load = false;

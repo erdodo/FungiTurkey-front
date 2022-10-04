@@ -17,6 +17,7 @@
         <el-menu-item :index="'/'" class="border-bottom-0">
           <a href="/"> <img src="@/assets/logo.png" width="130" class="m-2" alt="" /></a>
         </el-menu-item>
+        <div v-if="this.fungi == 'fungitu2_test_fungiturkey'" class="text-danger"><h1>TEST</h1></div>
         <div class="flex-grow" />
         <el-menu-item index="/">Anasayfa</el-menu-item>
         <el-menu-item :index="m.table_name" v-for="m in menu" :key="m"
@@ -52,6 +53,7 @@
         <el-menu-item index="/" class="border-bottom-0">
           <img src="@/assets/logo.png" width="100" class="m-2" alt="" />
         </el-menu-item>
+        <div v-if="this.fungi == 'fungitu2_test_fungiturkey'" class="text-danger"><h1>TEST</h1></div>
         <div class="flex-grow" />
         <el-sub-menu index="/" style="border-bottom: none !important">
           <template #title
@@ -116,12 +118,18 @@ export default {
           status: "1",
         },
       };
-      axios.defaults.baseURL = "https://api.fungiturkey.org/api/";
+      axios.defaults.baseURL = this.api + "api/";
       axios.defaults.headers.common["token"] = this.getToken;
       axios.defaults.headers.common["Content-Type"] = "application/json";
-      axios.post("fungitu2_fungiturkey/Menu", params).then((res) => {
-        this.menu = res.data.data;
-      });
+      axios
+        .post(this.fungi + "/Menu", params)
+        .then((res) => {
+          this.menu = res.data.data;
+        })
+        .catch(() => {
+          this.$store.commit("setToken", "");
+          window.location.href = "/";
+        });
     },
   },
 };

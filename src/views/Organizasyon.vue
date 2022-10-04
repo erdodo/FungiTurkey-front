@@ -17,7 +17,7 @@
     <div class="container" v-loading="load" style="min-height: 300px">
       <div class="row">
         <template v-for="a in services" :key="a">
-          <div class="col-12 col-sm-6 col-md-4">
+          <div class="col-12 col-sm-6 col-md-4 mt-2">
             <div class="p-2 text-center cursor-pointer" @click="(detayVisible = true), (id = a.id)">
               <img :src="ImgBase + a.image" alt="" class="w-100 rounded" />
               <h4 class="mt-3">{{ a.title }}</h4>
@@ -25,6 +25,17 @@
             </div>
           </div>
         </template>
+        <div class="col-12 mt-4">
+          <div class="w-100 d-flex justify-content-center">
+            <el-pagination
+              :page-size="limit"
+              :pager-count="3"
+              @current-change="setPage($event)"
+              layout="prev, pager, next"
+              :total="count"
+            />
+          </div>
+        </div>
       </div>
     </div>
     <organizasyon-detay :visible="detayVisible" @visible="detayVisible = $event" :id="this.id"></organizasyon-detay>
@@ -42,6 +53,9 @@ export default {
       load: true,
       detayVisible: false,
       id: 0,
+      count: 0,
+      limit: 6,
+      page: 1,
     };
   },
   mounted() {
@@ -50,15 +64,26 @@ export default {
   methods: {
     getData() {
       const params = {
+        limit: this.limit,
+        page: this.page,
         filter: {
           status: 1,
         },
+        order: {
+          name: "id",
+          type: "DESC",
+        },
       };
       this.load = true;
-      axios.post("fungitu2_fungiturkey/Services", params).then((response) => {
+      axios.post(this.fungi + "/Services", params).then((response) => {
         this.services = response.data.data;
+        this.count = response.data.count;
         this.load = false;
       });
+    },
+    setPage(e) {
+      this.page = e;
+      this.getData();
     },
   },
 };

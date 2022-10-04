@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="">
+<html lang="tr-TR">
 
 <head>
   <base href="/_assets/">
@@ -52,6 +52,17 @@
   </style>
 
 
+
+  <script type="text/javascript">
+    function googleTranslateElementInit(e) {
+      new google.translate.TranslateElement({ pageLanguage: 'tr', }, 'google_translate_element');
+
+    }
+  </script>
+
+  <script type="text/javascript"
+    src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
+
   <!-- Themefisher Icon font -->
   <link rel="stylesheet" href="plugins/themefisher-font/style.css">
   <!-- bootstrap.min css -->
@@ -83,10 +94,21 @@
 
   <!-- Custom js -->
   <script src="js/script.js"></script>
+
+  <style>
+    .goog-te-banner-frame {
+      bottom: 0 !important;
+      top: auto !important;
+    }
+
+    .body {
+      top: 0 !important;
+    }
+  </style>
 </head>
 
-<body class="p-0 m-0">
-  <div id="first-load"><span class="loader-1"> </span></div>
+<body class="p-0 m-0 body" style="top:0 !important">
+  <div id="first-load"><span class="loader-20"> </span></div>
   <noscript>
     <strong>We're sorry but <%= htmlWebpackPlugin.options.title %> doesn't work properly without JavaScript enabled.
         Please enable it to continue.</strong>
@@ -94,5 +116,36 @@
   <div id="app" style="display: none"></div>
   <!-- built files will be auto injected -->
 </body>
+
+<div class="translate">
+  <div id="google_translate_element"></div>
+  <style>
+    .translate {
+      position: absolute;
+      right: 10px;
+      bottom: 0px
+    }
+
+    .goog-te-combo {
+      display: block;
+      width: 100%;
+      height: calc(1.5em + 0.55rem + 2px);
+      padding: 0.275rem 0.55rem;
+      font-size: 0.7rem;
+      font-weight: 400;
+      line-height: 1.5;
+      color: #000000;
+      background-color: rgb(245, 244, 244);
+      background-clip: padding-box;
+      border: 1px solid #ced4da;
+      border-radius: 0.25rem;
+      transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+    }
+  </style>
+  <script>
+    let ggl = document.getElementsByClassName('goog-te-gadget')
+
+  </script>
+</div>
 
 </html>

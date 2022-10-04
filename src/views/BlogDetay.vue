@@ -44,12 +44,12 @@
         </div>
       </div>
     </div>
-    <div class="container mb-5">
+    <div class="container mb-5" v-loading="commentLoad">
       <h4>Yorumlar</h4>
       <div v-if="getToken">
         <el-input v-model="cmm" :rows="3" size="large" type="textarea" placeholder="Yorumunuz..."></el-input>
         <div class="w-100 d-flex justify-content-end">
-          <el-button type="primary" class="mt-3" @click="yorumGonder()"> Gönder</el-button>
+          <el-button type="primary" class="mt-3" :loading="buttonLoad" @click="yorumGonder()"> Gönder</el-button>
         </div>
         <el-divider />
       </div>
@@ -77,6 +77,8 @@ export default {
       blog: [],
       comments: [],
       load: true,
+      commentLoad: true,
+      buttonLoad: false,
       cmm: "",
       user: [],
     };
@@ -90,21 +92,29 @@ export default {
   },
   methods: {
     getData() {
-      axios.post("fungitu2_fungiturkey/Blog/" + this.$route.params.id + "/get").then((response) => {
+      this.load = true;
+      axios.post(this.fungi + "/Blog/" + this.$route.params.id + "/get").then((response) => {
         this.blog = response.data.data;
         this.load = false;
         this.getUser(this.blog.own_id);
       });
     },
     getComment() {
+      this.commentLoad = true;
       let params = {
         filter: {
           blog_id: this.$route.params.id,
           status: 1,
         },
+         order: {
+          name: "id",
+          type: "DESC",
+        },
       };
-      axios.post("fungitu2_fungiturkey/BlogComment", params).then((response) => {
+      axios.post(this.fungi + "/BlogComment", params).then((response) => {
         this.comments = response.data.data;
+        this.commentLoad = false;
+        this.buttonLoad = false;
       });
     },
     getUser(id) {
@@ -118,6 +128,7 @@ export default {
           confirmButtonText: "Tamam",
         });
       } else {
+        this.buttonLoad = true;
         var profile = this.getProfile;
         let params = {
           name: profile.name,
@@ -127,7 +138,7 @@ export default {
           member_id: profile.id,
           status: "0",
         };
-        axios.post("fungitu2_fungiturkey/BlogComment/store", params).then((res) => {
+        axios.post(this.fungi + "/BlogComment/store", params).then((res) => {
           if (res.data.status == "success") {
             ElMessageBox.alert("Yorumunuz onaylandıktan sonra görüntülenecektir. Teşekkürler.", "Başarılı", {
               confirmButtonText: "Tamam",

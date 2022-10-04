@@ -47,9 +47,9 @@ export default {
   methods: {
     getData() {
       this.load = true;
-      axios.post("fungitu2_fungiturkey/About/1/get").then((response) => {
+      axios.post(this.fungi + "/About/1/get").then((response) => {
         this.about1 = response.data.data;
-        axios.post("fungitu2_fungiturkey/About/2/get").then((res) => {
+        axios.post(this.fungi + "/About/2/get").then((res) => {
           this.about2 = res.data.data;
           this.load = false;
         });

@@ -73,8 +73,8 @@
 
             <div class="form-group mb-4">
               <span v-if="getProfile">
-                {{ getProfile.email }}
-                <template>{{ (email = getProfile.email) }} </template>
+                {{ getProfile?.email }}
+                <template>{{ (email = getProfile?.email) }} </template>
               </span>
               <input v-else type="email" placeholder="Eposta Adresiniz" class="form-control" v-model="email" />
             </div>
@@ -88,7 +88,7 @@
             </div>
 
             <div id="cf-submit">
-              <el-button type="primary" class="w-100" @click="gonder()">Gönder</el-button>
+              <el-button type="primary" class="w-100" :loading="buttonLoading" @click="gonder()">Gönder</el-button>
             </div>
           </div>
           <!-- ./End Contact Form -->
@@ -122,12 +122,23 @@ import { ElNotification } from "element-plus";
 export default {
   data() {
     return {
-      contact: [],
+      contact: {
+        map_link: "",
+        adress: "",
+        phone: "",
+        mail: "",
+        director: "",
+        facebook: "",
+        twitter: "",
+        linkedin: "",
+        youtube: "",
+      },
       name: "",
       email: "",
       subject: "",
       message: "",
       load: true,
+      buttonLoading: false,
     };
   },
   computed: {
@@ -139,7 +150,7 @@ export default {
   methods: {
     getData() {
       this.load = true;
-      axios.post("fungitu2_fungiturkey/Contact/first").then((response) => {
+      axios.post(this.fungi + "/Contact/first").then((response) => {
         this.contact = response.data.data;
         this.load = false;
       });
@@ -152,21 +163,21 @@ export default {
           type: "info",
         });
       } else {
-        this.load = true;
+        this.buttonLoading = true;
         const formData = new FormData();
         formData.append("name", this.name);
         formData.append("email", this.email);
         formData.append("subject", this.subject);
         formData.append("message", this.message);
 
-        axios.post("fungitu2_fungiturkey/Feedbacks/store", formData).then((res) => {
+        axios.post(this.fungi + "/Feedbacks/store", formData).then((res) => {
           if (res.data.status == "success") {
             ElNotification({
               title: "Başarılı",
               message: "Mesaj başarıyla düzenlendi",
               type: "success",
             });
-            this.load = false;
+            this.buttonLoading = false;
           }
         });
       }
