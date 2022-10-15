@@ -73,6 +73,14 @@ import dateTimeParser from "@/hooks/dateTimeParser";
 import ActivityCalendar from "./modals/ActivityCalendar.vue";
 
 export default {
+  metaInfo: {
+    title: "Etkinlik",
+    titleTemplate: "Mantar Etkinliklerimiz",
+    htmlAttrs: {
+      lang: "tr",
+      amp: true,
+    },
+  },
   components: { login, ActivityRecord, ActivityCalendar },
   data() {
     return {
@@ -103,7 +111,7 @@ export default {
         filter: {
           status: "1",
         },
-         order: {
+        order: {
           name: "id",
           type: "DESC",
         },

@@ -46,6 +46,14 @@
 import axios from "axios";
 import OrganizasyonDetay from "./OrganizasyonDetay.vue";
 export default {
+  metaInfo: {
+    title: "Organizasyon",
+    titleTemplate: "Mantar Organizasyonları",
+    htmlAttrs: {
+      lang: "tr",
+      amp: true,
+    },
+  },
   components: { OrganizasyonDetay },
   data() {
     return {

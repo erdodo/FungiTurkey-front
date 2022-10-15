@@ -27,6 +27,14 @@ import { VueperSlides, VueperSlide } from "vueperslides";
 import "vueperslides/dist/vueperslides.css";
 import axios from "axios";
 export default {
+  metaInfo: {
+    title: "Ana Sayfa",
+    titleTemplate: "Ana Sayfa",
+    htmlAttrs: {
+      lang: "tr",
+      amp: true,
+    },
+  },
   components: { VueperSlides, VueperSlide },
   data() {
     return {
@@ -45,7 +53,7 @@ export default {
         filter: {
           status: 1,
         },
-         order: {
+        order: {
           name: "id",
           type: "DESC",
         },

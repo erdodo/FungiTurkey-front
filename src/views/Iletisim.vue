@@ -78,7 +78,14 @@
               </span>
               <input v-else type="email" placeholder="Eposta Adresiniz" class="form-control" v-model="email" />
             </div>
-
+            <div class="form-group mb-4">
+              <span v-if="getProfile">
+                {{ getProfile?.phone }}
+                <template>{{ (phone = getProfile?.phone) }} </template>
+              </span>
+              <input v-else type="text" placeholder="Telefon numaranız" class="form-control" v-model="phone" />
+            </div>
+            <div class="form-group mb-4"></div>
             <div class="form-group mb-4">
               <input type="text" placeholder="Başlık" class="form-control" v-model="subject" />
             </div>
@@ -103,6 +110,7 @@
 =            Google Map            =
 =================================-->
     <iframe
+      v-if="false"
       :src="contact.map_link"
       width="100%"
       height="450"
@@ -120,6 +128,15 @@ import axios from "axios";
 import { mapGetters } from "vuex";
 import { ElNotification } from "element-plus";
 export default {
+  metaInfo: {
+    title: "İletişim",
+    titleTemplate:
+      "Fungi Turkey 2018 yılında mantar türlerini topluma tanıtabilmek ve bilinçli bir şekilde mantar avcılığı yapabilmek adına Ömer Üngör tarafından kurulmuştur. Sosyal medya üzerinden yaptığımız detaylı tür tanımlamaları, online mantar eğitimleri, saha eğitimleri, etkinlikler ve mantar gastronomisi etkinlikleriyle bu alanda Türkiye'de ilkleri gerçekleştirmiştir. Birbirinden değerli katılımcılara sahip Fungi Turkey topluluğu her geçen gün büyüyerek ilerlemeye devam ediyor.",
+    htmlAttrs: {
+      lang: "tr",
+      amp: true,
+    },
+  },
   data() {
     return {
       contact: {
@@ -135,6 +152,7 @@ export default {
       },
       name: "",
       email: "",
+      phone: "",
       subject: "",
       message: "",
       load: true,
@@ -167,6 +185,7 @@ export default {
         const formData = new FormData();
         formData.append("name", this.name);
         formData.append("email", this.email);
+        formData.append("phone", this.phone);
         formData.append("subject", this.subject);
         formData.append("message", this.message);
 
@@ -178,6 +197,7 @@ export default {
               type: "success",
             });
             this.buttonLoading = false;
+            window.location.reload();
           }
         });
       }

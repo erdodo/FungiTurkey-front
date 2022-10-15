@@ -109,6 +109,7 @@ export default {
       }
     },
     getCreateData() {
+      axios.defaults.baseURL = this.api + "api/";
       this.load = true;
       axios.post(this.simple + "/users/create").then((res) => {
         this.registerData = res.data.columns;

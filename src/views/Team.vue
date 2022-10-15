@@ -68,6 +68,14 @@
 import axios from "axios";
 import dateTimeParser from "@/hooks/dateTimeParser";
 export default {
+  metaInfo: {
+    title: "Takımımız",
+    titleTemplate: "Mantar Takımımız",
+    htmlAttrs: {
+      lang: "tr",
+      amp: true,
+    },
+  },
   data() {
     return {
       team: [],

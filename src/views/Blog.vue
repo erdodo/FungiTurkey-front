@@ -60,6 +60,14 @@
 import axios from "axios";
 import dateTimeParser from "@/hooks/dateTimeParser";
 export default {
+  metaInfo: {
+    title: "Blog",
+    titleTemplate: "Blog",
+    htmlAttrs: {
+      lang: "tr",
+      amp: true,
+    },
+  },
   data() {
     return {
       blog: [],

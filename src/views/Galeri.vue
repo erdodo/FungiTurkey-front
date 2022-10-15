@@ -58,6 +58,14 @@
 import axios from "axios";
 import Galery from "./modals/Galery.vue";
 export default {
+  metaInfo: {
+    title: "Galeri",
+    titleTemplate: "Mantar Galerimiz",
+    htmlAttrs: {
+      lang: "tr",
+      amp: true,
+    },
+  },
   components: { Galery },
   data() {
     return {
@@ -82,7 +90,7 @@ export default {
         filter: {
           status: 1,
         },
-         order: {
+        order: {
           name: "id",
           type: "DESC",
         },

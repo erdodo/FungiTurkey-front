@@ -96,6 +96,10 @@ export default {
         filter: {
           own_id: this.getProfile.id,
         },
+        order: {
+          name: "id",
+          type: "DESC",
+        },
       };
       axios
         .post(this.fungi + "/ActivityComment", params)

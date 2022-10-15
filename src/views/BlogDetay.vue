@@ -72,6 +72,14 @@ import dateTimeParser from "@/hooks/dateTimeParser";
 import { mapGetters } from "vuex";
 import { ElMessageBox } from "element-plus";
 export default {
+  metaInfo: {
+    title: "Blog",
+    titleTemplate: "Blog",
+    htmlAttrs: {
+      lang: "tr",
+      amp: true,
+    },
+  },
   data() {
     return {
       blog: [],
@@ -106,7 +114,7 @@ export default {
           blog_id: this.$route.params.id,
           status: 1,
         },
-         order: {
+        order: {
           name: "id",
           type: "DESC",
         },

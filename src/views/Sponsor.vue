@@ -49,6 +49,14 @@
 import axios from "axios";
 import dateTimeParser from "@/hooks/dateTimeParser";
 export default {
+  metaInfo: {
+    title: "Sponsorlarımız",
+    titleTemplate: "Sponsorlarımız",
+    htmlAttrs: {
+      lang: "tr",
+      amp: true,
+    },
+  },
   data() {
     return {
       sponsor: [],
@@ -70,7 +78,7 @@ export default {
         filter: {
           status: 1,
         },
-         order: {
+        order: {
           name: "id",
           type: "DESC",
         },

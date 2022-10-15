@@ -117,6 +117,10 @@ export default {
         filter: {
           status: "1",
         },
+        order: {
+          name: "id",
+          type: "DESC",
+        },
       };
       axios.defaults.baseURL = this.api + "api/";
       axios.defaults.headers.common["token"] = this.getToken;

@@ -17,6 +17,14 @@
 <script>
 import axios from "axios";
 export default {
+  metaInfo: {
+    title: "Organizasyon",
+    titleTemplate: "Mantar Organizasyonları",
+    htmlAttrs: {
+      lang: "tr",
+      amp: true,
+    },
+  },
   props: ["visible", "id"],
   data() {
     return {

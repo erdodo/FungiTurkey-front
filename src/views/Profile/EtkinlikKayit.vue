@@ -21,7 +21,6 @@
             <div class="p-2 mt-2 card">
               <div class="row">
                 <div class="col-12 col-lg-7">
-                  <template> {{ getActivity(a.activity_id) }} </template>
                   <div class="d-flex align-items-center h-100 flex-wrap justify-content-start justify-content-md-left">
                     <el-image :src="ImgBase + activities[a.activity_id]?.image" style="height: 130px">
                       <template #placeholder>
@@ -31,11 +30,17 @@
                     <div class="mx-1">
                       <h5 class="text-wrap">{{ activities[a.activity_id]?.title }}</h5>
                       <p>
-                        Kordinatör: <a class="text-warning ml-2"> {{ activities[a.activity_id]?.director }} </a>
+                        Koordinatör: <a class="text-warning ml-2"> {{ activities[a.activity_id]?.director }} </a>
                       </p>
                       <p>
                         Toplam Ücret:
-                        <a class="text-warning ml-2"> {{ activities[a.activity_id]?.price * a.people_count }} TL</a>
+                        <a class="text-warning ml-2">
+                          <oda v-if="activities[a.activity_id]?.room_status == 1 && a.room_id != null">
+                            {{ activities[a.activity_id]?.price * a.people_count }} TL + {{ odalar[a.room_id]["price"] }} TL
+                            (Oda)
+                          </oda>
+                          <cadir v-else> {{ activities[a.activity_id]?.cadir_fiyat * a.people_count }} TL </cadir>
+                        </a>
                       </p>
                     </div>
                   </div>
@@ -49,6 +54,12 @@
                     <p>
                       Kayıt tarihi: <a class="text-warning"> {{ dateTimeParser(a.added_date) }}</a>
                     </p>
+                    <div class="w-100 mb-2">
+                      <div v-if="a.status == 1 && a.price_status != 1">
+                        IBAN: <a class="text-dark"> {{ activities[a.activity_id].iban }}</a>
+                      </div>
+                      <div v-if="a.price_status == 1" v-html="activities[a.activity_id].location_url"></div>
+                    </div>
                     <div class="d-flex">
                       <el-button
                         type="primary"
@@ -58,9 +69,16 @@
                       >
                       <el-button
                         type="default"
-                        v-if="activities[a.activity_id]?.room_status == 1"
+                        v-if="activities[a.activity_id]?.room_status == 1 && a.room_id != null"
                         @click="(room = a.room_id), (roomStatus = true)"
                         >Oda Detayları</el-button
+                      >
+                      <el-tag
+                        v-if="activities[a.activity_id]?.room_status == 1 && a.room_id == null"
+                        class="mx-1"
+                        size="large"
+                        type="info"
+                        >Çadır</el-tag
                       >
                       <el-tag class="mx-1" size="large" type="success" v-if="a.price_status == 1">Ödeme alındı</el-tag>
                       <el-tag class="mx-1" size="large" type="danger" v-else>Ödeme alınmadı</el-tag>
@@ -85,10 +103,6 @@
                       </el-popconfirm>
                     </div>
                   </div>
-                  <div class="w-100">
-                    <div v-if="a.status == 1 && a.price_status != 1">IBAN: {{ activities[a.activity_id].iban }}</div>
-                    <div v-if="a.price_status == 1" v-html="activities[a.activity_id].location_url"></div>
-                  </div>
                 </div>
               </div>
             </div>
@@ -98,16 +112,12 @@
       </div>
     </div>
     <div>
-      <activity-record-edit
-        :record="record"
-        :visible="editStatus"
-        :benim="record.people_count"
-        :kota="activities[record.activity_id]?.quota"
-        :kayit="activityRecordsCount[record.activity_id]"
-        @state="getData(), (editStatus = false)"
-        :activity="activities[record.activity_id]"
-      ></activity-record-edit>
       <room :dialogVisible="roomStatus" @state="roomStatus = $event" :room="room"></room>
+      <activity-record-edit
+        :visible="editStatus"
+        @visible="editStatus = $event"
+        :activity="activities[record.activity_id]"
+      />
     </div>
   </div>
 </template>
@@ -131,6 +141,7 @@ export default {
       editStatus: false,
       roomStatus: false,
       room: null,
+      odalar: {},
       record: {},
       load: false,
       activityRecordsCount: {},
@@ -149,6 +160,10 @@ export default {
         filter: {
           own_id: this.getProfile.id,
         },
+        order: {
+          name: "id",
+          type: "DESC",
+        },
       };
       axios
         .post(this.fungi + "/ActivityRecord", params)
@@ -158,6 +173,10 @@ export default {
             if (this.activityRecordsCount[val.activity_id] == undefined) {
               this.activityRecordsCount[val.activity_id] = 0;
             }
+            if (val.room_id != null) {
+              this.getRoom(val.room_id);
+            }
+            this.getActivity(val.activity_id);
             this.getLimit(val.activity_id);
           }
         })
@@ -222,6 +241,15 @@ export default {
           this.getData();
           this.load = false;
         });
+    },
+    getRoom(id) {
+      this.load = true;
+
+      axios.post(this.fungi + "/ActivityRoom/" + id + "/get").then((res) => {
+        this.odalar[id] = res.data.data;
+
+        this.load = false;
+      });
     },
     dateTimeParser,
   },
