@@ -29,17 +29,27 @@
                     </el-image>
                     <div class="mx-1">
                       <h5 class="text-wrap">{{ activities[a.activity_id]?.title }}</h5>
-                      <p>
+                      <p class="my-0">
                         Koordinatör: <a class="text-warning ml-2"> {{ activities[a.activity_id]?.director }} </a>
                       </p>
-                      <p>
+                      <p class="text-nowrap">
                         Toplam Ücret:
                         <a class="text-warning ml-2">
-                          <oda v-if="activities[a.activity_id]?.room_status == 1 && a.room_id != null">
-                            {{ activities[a.activity_id]?.price * a.people_count }} TL + {{ odalar[a.room_id]["price"] }} TL
-                            (Oda)
+                          <oda class="text-dark" v-if="activities[a.activity_id]?.room_status == 1 && a.room_id != null">
+                            {{ activities[a.activity_id]?.price * a.people_count }} TL (Etkinlik) +
+                            {{ odalar[a.room_id]["price"] }} TL (Oda) <br />
+                            <span class="text-warning"
+                              >Genel Toplam:
+                              {{
+                                parseFloat(activities[a.activity_id]?.price * a.people_count) +
+                                parseFloat(odalar[a.room_id]["price"])
+                              }}TL
+                            </span>
                           </oda>
-                          <cadir v-else> {{ activities[a.activity_id]?.cadir_fiyat * a.people_count }} TL </cadir>
+                          <cadir v-else-if="activities[a.activity_id]?.room_status == 1 && a.room_id == null">
+                            {{ activities[a.activity_id]?.cadir_fiyat * a.people_count }} TL
+                          </cadir>
+                          <div v-else>{{ activities[a.activity_id]?.price * a.people_count }} TL</div>
                         </a>
                       </p>
                     </div>

@@ -125,15 +125,13 @@ export default {
       axios.defaults.baseURL = this.api + "api/";
       axios.defaults.headers.common["token"] = this.getToken;
       axios.defaults.headers.common["Content-Type"] = "application/json";
-      axios
-        .post(this.fungi + "/Menu", params)
-        .then((res) => {
-          this.menu = res.data.data;
-        })
-        .catch(() => {
+      axios.post(this.fungi + "/Menu", params).then((res) => {
+        this.menu = res.data.data;
+      });
+      /*.catch(() => {
           this.$store.commit("setToken", "");
           window.location.href = "/";
-        });
+        });*/
     },
   },
 };

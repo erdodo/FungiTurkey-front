@@ -1,23 +1,39 @@
 <template>
-  <el-dialog
-    v-model="dialogVisible"
-    v-loading="loading"
-    title="Etkinlik Takvimi"
-    fullscreen
-    width="30%"
-    :before-close="handleClose"
-  >
-    <FullCalendar v-if="!loading" :options="calendarOptions" />
-    <template #footer>
-      <span class="dialog-footer">
-        <el-button @click="dialogVisible = false">Kapat</el-button>
-      </span>
-    </template>
-  </el-dialog>
+  <div>
+    <el-dialog
+      v-model="dialogVisible"
+      v-loading="loading"
+      title="Etkinlik Takvimi"
+      fullscreen
+      width="30%"
+      :before-close="handleClose"
+    >
+      <span
+        >*Etkinlik tarihlerimiz sizin için uygun değil mi? Etkinlik istediğiniz güne tıklayarak bize bildirebilirsiniz.</span
+      >
+      <FullCalendar v-if="!loading" @clickDate="dayClick" @select="handleSelect" :options="calendarOptions" />
+      <template #footer>
+        <span class="dialog-footer">
+          <el-button @click="dialogVisible = false">Kapat</el-button>
+        </span>
+      </template>
+    </el-dialog>
+    <el-dialog v-model="activityFeedback" title="Etkinlik İsteği" width="300px">
+      <el-input v-model="message" :rows="4" type="textarea" placeholder="Nasıl bir etkinlik talep ediyorsunuz?" />
+      <template #footer>
+        <span class="dialog-footer">
+          <el-button @click="activityFeedback = false">Vazgeç</el-button>
+          <el-button type="primary" @click="newFeedback()">Gönder</el-button>
+        </span>
+      </template>
+    </el-dialog>
+  </div>
 </template>
 
 <script>
 import axios from "axios";
+import { mapGetters } from "vuex";
+import { ElNotification } from "element-plus";
 
 import FullCalendar from "@fullcalendar/vue3";
 import dayGridPlugin from "@fullcalendar/daygrid";
@@ -34,7 +50,11 @@ export default {
       activity: {},
       count: 0,
       loading: true,
+      activityFeedback: false,
+      tarih: null,
+      message: "",
       calendarOptions: {
+        dateClick: this.handleDateClick,
         plugins: [dayGridPlugin, timeGridPlugin, listPlugin, interactionPlugin, bootstrapPlugin],
         initialView: "dayGridMonth", //aylık görünüm
         footerToolbar: {
@@ -50,6 +70,7 @@ export default {
         width: "100%", //takvimin genişliği
         responsive: true, //takvimin cevabında görünmesi
         events: [],
+
         eventClick: this.eventClick,
         displayEventTime: false, //eventlerin zamanını gösterme
         longPressDelay: 500, //eventlerin ne kadar süre boyunca yüksekliği olması
@@ -81,6 +102,9 @@ export default {
         },
       },
     };
+  },
+  computed: {
+    ...mapGetters(["getProfile"]),
   },
   watch: {
     dialogVisible() {
@@ -118,8 +142,31 @@ export default {
         }
       });
     },
-    eventClick(e) {
+    handleSelect(e) {
       console.log(e);
+    },
+    handleDateClick: function (arg) {
+      this.tarih = arg.dateStr;
+      this.activityFeedback = true;
+    },
+    newFeedback() {
+      const params = {
+        member_id: this.getProfile.id,
+        name: this.getProfile.name + " " + this.getProfile.surname,
+        phone: this.getProfile.phone,
+        message: this.message,
+        activity_date: this.tarih,
+      };
+      this.activityFeedback = false;
+      axios.post(this.fungi + "/ActivityFeedback/store", params).then((res) => {
+        if (res.data.status == "success") {
+          ElNotification({
+            title: "Başarılı",
+            message: "Geri bildirim başarıyla gönderildi.",
+            type: "success",
+          });
+        }
+      });
     },
   },
   components: {

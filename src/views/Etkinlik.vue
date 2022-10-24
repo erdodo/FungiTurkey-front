@@ -22,11 +22,15 @@
         <template v-for="a in activity" :key="a">
           <div class="col-12 col-sm-6 col-md-4 mt-2">
             <div class="p-2 text-center">
-              <div
-                class="w-100 image-card rounded cursor-pointer"
+              <el-image
+                :src="ImgBase + a.image"
                 @click="modalData = !modalData"
-                :style="{ background: 'url(' + ImgBase + a.image + ')' }"
-              ></div>
+                class="w-100 image-card rounded cursor-pointer"
+              >
+                <template #placeholder>
+                  <div class="image-slot">Yükleniyor<span class="dot">...</span></div>
+                </template>
+              </el-image>
               <h3 class="mt-3">{{ a.title }}</h3>
               <h5>
                 Son Kayıt: <a class="text-warning">{{ dateTimeParser(a.last_record_date) }}</a>

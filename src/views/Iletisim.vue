@@ -25,35 +25,35 @@
             <ul class="contact-short-info mt-4">
               <li class="mb-3">
                 <i class="bi bi-house mr-2"></i>
-                <span>Adres: {{ contact.adress }} </span>
+                <span>Adres: {{ contact?.adress }} </span>
               </li>
               <li class="mb-3">
                 <i class="bi bi-telephone mr-2"></i>
-                <span>Telefon: {{ contact.phone }} </span>
+                <span>Telefon: {{ contact?.phone }} </span>
               </li>
               <li class="mb-3">
                 <i class="bi bi-envelope mr-2"></i>
-                <span>E-Posta: {{ contact.mail }} </span>
+                <span>E-Posta: {{ contact?.mail }} </span>
               </li>
               <li>
                 <i class="bi bi-people mr-2"></i>
-                <span>Yönetici: {{ contact.director }} </span>
+                <span>Yönetici: {{ contact?.director }} </span>
               </li>
             </ul>
             <!-- Footer Social Links -->
             <div class="social-icon">
               <ul>
                 <li>
-                  <a :href="contact.facebook" target="_blank"><i class="bi bi-facebook"></i></a>
+                  <a :href="contact?.facebook" target="_blank"><i class="bi bi-facebook"></i></a>
                 </li>
                 <li>
-                  <a :href="contact.twitter" target="_blank"><i class="bi bi-twitter"></i></a>
+                  <a :href="contact?.twitter" target="_blank"><i class="bi bi-twitter"></i></a>
                 </li>
                 <li>
-                  <a :href="contact.linkedin" target="_blank"><i class="bi bi-linkedin"></i></a>
+                  <a :href="contact?.linkedin" target="_blank"><i class="bi bi-linkedin"></i></a>
                 </li>
                 <li>
-                  <a :href="contact.youtube" target="_blank"><i class="bi bi-youtube"></i></a>
+                  <a :href="contact?.youtube" target="_blank"><i class="bi bi-youtube"></i></a>
                 </li>
               </ul>
             </div>
@@ -64,26 +64,14 @@
           <!-- Contact Form -->
           <div class="contact-form col-md-6" v-loading="load">
             <div class="form-group mb-4">
-              <span v-if="getProfile">
-                {{ getProfile.name }} {{ getProfile.surname }}
-                <template>{{ (name = getProfile.name + " " + getProfile.surname) }} </template>
-              </span>
-              <input v-else type="text" placeholder="İsminiz" class="form-control" v-model="name" />
+              <input type="text" placeholder="İsminiz" class="form-control" v-model="name" />
             </div>
 
             <div class="form-group mb-4">
-              <span v-if="getProfile">
-                {{ getProfile?.email }}
-                <template>{{ (email = getProfile?.email) }} </template>
-              </span>
-              <input v-else type="email" placeholder="Eposta Adresiniz" class="form-control" v-model="email" />
+              <input type="email" placeholder="Eposta Adresiniz" class="form-control" v-model="email" />
             </div>
             <div class="form-group mb-4">
-              <span v-if="getProfile">
-                {{ getProfile?.phone }}
-                <template>{{ (phone = getProfile?.phone) }} </template>
-              </span>
-              <input v-else type="text" placeholder="Telefon numaranız" class="form-control" v-model="phone" />
+              <input type="text" placeholder="Telefon numaranız" class="form-control" v-model="phone" />
             </div>
             <div class="form-group mb-4"></div>
             <div class="form-group mb-4">
@@ -93,9 +81,13 @@
             <div class="form-group mb-4">
               <textarea rows="6" placeholder="Mesajınız" class="form-control" v-model="message"></textarea>
             </div>
+            <div class="d-flex">
+              <div v-html="dgresim"></div>
+              <input type="text" placeholder="Doğrulama" class="form-control" v-model="dogrulama" />
+            </div>
 
             <div id="cf-submit">
-              <el-button type="primary" class="w-100" :loading="buttonLoading" @click="gonder()">Gönder</el-button>
+              <el-button type="primary" class="w-100" @click="gonder()">Gönder</el-button>
             </div>
           </div>
           <!-- ./End Contact Form -->
@@ -111,7 +103,7 @@
 =================================-->
     <iframe
       v-if="false"
-      :src="contact.map_link"
+      :src="contact?.map_link"
       width="100%"
       height="450"
       style="border: 0"
@@ -157,6 +149,8 @@ export default {
       message: "",
       load: true,
       buttonLoading: false,
+      dgresim: null,
+      dogrulama: "",
     };
   },
   computed: {
@@ -164,6 +158,10 @@ export default {
   },
   mounted() {
     this.getData();
+
+    axios.post("dogrulama").then((res) => {
+      this.dgresim = res.data;
+    });
   },
   methods: {
     getData() {
@@ -173,34 +171,60 @@ export default {
         this.load = false;
       });
     },
+    toDataURL(url, callback) {
+      var xhr = new XMLHttpRequest();
+      xhr.onload = function () {
+        var reader = new FileReader();
+        reader.onloadend = function () {
+          callback(reader.result);
+        };
+        reader.readAsDataURL(xhr.response);
+      };
+      xhr.open("GET", url);
+      xhr.responseType = "blob";
+      xhr.send();
+    },
     gonder() {
-      if (this.email.length < 3 || this.name.length < 3 || this.subject.length < 3 || this.message.length < 3) {
-        ElNotification({
-          title: "Dikkat",
-          message: "Boş alanları doldurunuz!",
-          type: "info",
-        });
-      } else {
-        this.buttonLoading = true;
-        const formData = new FormData();
-        formData.append("name", this.name);
-        formData.append("email", this.email);
-        formData.append("phone", this.phone);
-        formData.append("subject", this.subject);
-        formData.append("message", this.message);
-
-        axios.post(this.fungi + "/Feedbacks/store", formData).then((res) => {
-          if (res.data.status == "success") {
+      axios.post("md5", { text: this.dogrulama }).then((res) => {
+        if (res.data == document.getElementById("cpt").getAttribute("alt")) {
+          if (this.email.length < 3 || this.name.length < 3 || this.subject.length < 3 || this.message.length < 3) {
             ElNotification({
-              title: "Başarılı",
-              message: "Mesaj başarıyla düzenlendi",
-              type: "success",
+              title: "Dikkat",
+              message: "Boş alanları doldurunuz!",
+              type: "info",
             });
-            this.buttonLoading = false;
-            window.location.reload();
+          } else {
+            this.buttonLoading = true;
+            const formData = new FormData();
+            formData.append("name", this.name);
+            formData.append("email", this.email);
+            formData.append("phone", this.phone);
+            formData.append("subject", this.subject);
+            formData.append("message", this.message);
+
+            axios.post(this.fungi + "/Feedbacks/store", formData).then((res) => {
+              if (res.data.status == "success") {
+                ElNotification({
+                  title: "Başarılı",
+                  message: "Mesaj başarıyla düzenlendi",
+                  type: "success",
+                });
+                this.buttonLoading = false;
+                window.location.reload();
+              }
+            });
           }
-        });
-      }
+        } else {
+          ElNotification({
+            title: "Hata",
+            message: "Lütfen resimdeki rakamları doğru giriniz.",
+            type: "error",
+          });
+        }
+      });
+      /*
+      
+      */
     },
   },
 };

@@ -2,7 +2,7 @@
 <html lang="tr-TR">
 
 <head>
-  <base href="/_assets/">
+  <base href="">
   <meta charset="utf-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width,initial-scale=1.0">
@@ -64,36 +64,36 @@
     src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
 
   <!-- Themefisher Icon font -->
-  <link rel="stylesheet" href="plugins/themefisher-font/style.css">
+  <link rel="stylesheet" href="<%= BASE_URL %>_assets/plugins/themefisher-font/style.css">
   <!-- bootstrap.min css -->
-  <link rel="stylesheet" href="plugins/bootstrap/bootstrap.min.css">
+  <link rel="stylesheet" href="<%= BASE_URL %>_assets/plugins/bootstrap/bootstrap.min.css">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.9.1/font/bootstrap-icons.css">
   <!-- Lightbox.min css -->
-  <link rel="stylesheet" href="plugins/lightbox2/css/lightbox.min.css">
+  <link rel="stylesheet" href="<%= BASE_URL %>_assets/plugins/lightbox2/css/lightbox.min.css">
   <!-- animation css -->
-  <link rel="stylesheet" href="plugins/animate/animate.css">
+  <link rel="stylesheet" href="<%= BASE_URL %>_assets/plugins/animate/animate.css">
   <!-- Slick Carousel -->
-  <link rel="stylesheet" href="plugins/slick/slick.css">
+  <link rel="stylesheet" href="<%= BASE_URL %>_assets/plugins/slick/slick.css">
   <!-- Main Stylesheet -->
-  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="<%= BASE_URL %>_assets/css/style.css">
   <!-- Main jQuery -->
-  <script src="plugins/jquery/jquery.min.js"></script>
+  <script src="<%= BASE_URL %>_assets/plugins/jquery/jquery.min.js"></script>
 
   <!-- Bootstrap4 -->
-  <script src="plugins/bootstrap/bootstrap.min.js"></script>
+  <script src="<%= BASE_URL %>_assets/plugins/bootstrap/bootstrap.min.js"></script>
   <!-- Parallax -->
-  <script src="plugins/parallax/jquery.parallax-1.1.3.js"></script>
+  <script src="<%= BASE_URL %>_assets/plugins/parallax/jquery.parallax-1.1.3.js"></script>
   <!-- lightbox -->
-  <script src="plugins/lightbox2/js/lightbox.min.js"></script>
+  <script src="<%= BASE_URL %>_assets/plugins/lightbox2/js/lightbox.min.js"></script>
   <!-- Owl Carousel -->
-  <script src="plugins/slick/slick.min.js"></script>
+  <script src="<%= BASE_URL %>_assets/plugins/slick/slick.min.js"></script>
   <!-- filter -->
-  <script src="plugins/filterizr/jquery.filterizr.min.js"></script>
+  <script src="<%= BASE_URL %>_assets/plugins/filterizr/jquery.filterizr.min.js"></script>
   <!-- Smooth Scroll js -->
-  <script src="plugins/smooth-scroll/smooth-scroll.min.js"></script>
+  <script src="<%= BASE_URL %>_assets/plugins/smooth-scroll/smooth-scroll.min.js"></script>
 
   <!-- Custom js -->
-  <script src="js/script.js"></script>
+  <script src="<%= BASE_URL %>_assets/js/script.js"></script>
 
   <style>
     .goog-te-banner-frame {
@@ -108,6 +108,7 @@
 </head>
 
 <body class="p-0 m-0 body" style="top:0 !important">
+  <!-- v.1.0 -->
   <div id="first-load"><span class="loader-20"> </span></div>
   <noscript>
     <strong>We're sorry but <%= htmlWebpackPlugin.options.title %> doesn't work properly without JavaScript enabled.
@@ -147,5 +148,6 @@
 
   </script>
 </div>
+
 
 </html>

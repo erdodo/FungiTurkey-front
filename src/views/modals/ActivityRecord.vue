@@ -1,6 +1,6 @@
 <template>
   <div class="etk-kayit" v-if="loading == false">
-    <el-dialog v-model="dialogVisible" :fullscreen="odalar.length > 0" title="Kayıt Ekleme" width="380px">
+    <el-dialog v-model="dialogVisible" :fullscreen="odalar.length > 0" title="Kayıt Ekleme" width="320px">
       <div class="d-flex justify-content-between flex-column h-100" v-loading="loading">
         <div v-loading="loading">
           <div v-if="oda_state == false && etk_limit > 0" class="w-100 d-flex flex-column align-items-center my-3">
@@ -18,13 +18,13 @@
           </div>
 
           <label v-if="odalar?.length > 0">Size uygun olan katılım şeklini seçebilirsiniz.</label>
-          <div v-if="odalar?.length > 0 || cadir_limit > 0" class="d-flex flex-row align-items-center my-3 overflow-auto">
+          <div class="d-flex flex-row align-items-center my-3 overflow-auto">
             <el-card
               v-loading="loading"
               v-if="oda_state == true && cadir_limit > 0"
               style="height: 400px; overflow-y: auto; width: 280px"
               :style="odalar?.length <= 0 ? 'width: 280px' : 'width: 280px; min-width:280px;height: 600px;max-height: 70vh;'"
-              class="mr-2"
+              :class="odalar?.length <= 0 ? '' : 'mr-2'"
             >
               <div class="w-100 d-flex flex-column align-items-center">
                 <el-image
@@ -75,7 +75,7 @@
                   :min="1"
                   :max="oda.quota"
                   @change="handleChange"
-                  @click="odaSec(oda.id)"
+                  @click="secilen.find((e) => e == oda.id) ? odaSec(oda.id) : ''"
                 />
                 <el-button type="danger" v-if="secilen.find((e) => e == oda.id)">İptal</el-button>
                 <el-button type="primary" v-else>Seç</el-button>
@@ -132,6 +132,9 @@ export default {
   computed: {
     ...mapGetters(["getProfile"]),
   },
+  mounted() {
+    this.limitReturn();
+  },
   watch: {
     dialogVisible() {
       this.$emit("visible", this.dialogVisible);
@@ -147,13 +150,40 @@ export default {
         this.getEtkinlikLimit();
       }
     },
+    activity() {
+      console.log("sdflknsmdfjnsdkj", this.activity.room_status);
+      if (this.activity.room_status == 1) {
+        this.oda_state = true;
+        this.loading = true;
+        this.getCadirRecords();
+        this.getOdaRecords();
+      } else {
+        this.getEtkinlikLimit();
+      }
+    },
     islem_success() {
       if (this.islem_success == this.islem_count) {
         window.location.reload();
       }
     },
+    cadir_limit() {
+      console.log("sadfdsfsfd12312312");
+      this.limitReturn();
+    },
+    etk_limit() {
+      console.log("sadfdsfsfd12312312");
+      this.limitReturn();
+    },
+    odalar() {
+      console.log("sadfdsfsfd12312312");
+      this.limitReturn();
+    },
   },
   methods: {
+    limitReturn() {
+      const state = this.etk_limit <= 0 && this.cadir_limit <= 0 && this.odalar.length <= 0;
+      this.$emit("limitState", state);
+    },
     getEtkinlikLimit() {
       this.loading = true;
       const params = {
@@ -193,6 +223,7 @@ export default {
         filter: {
           activity_id: this.activity.id,
           rent_status: "0",
+          status: "1",
         },
       };
       axios.post(this.fungi + "/ActivityRoom", params).then((res) => {

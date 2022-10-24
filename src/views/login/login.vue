@@ -66,6 +66,7 @@ export default {
             axios.defaults.headers.common["token"] = res.data.token;
             axios.post("/profile").then((res2) => {
               this.$store.commit("setProfile", JSON.stringify(res2.data.data));
+              window.location.reload();
             });
           } else {
             ElNotification({

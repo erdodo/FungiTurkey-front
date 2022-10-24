@@ -29,19 +29,19 @@ export default {
     axios.defaults.headers.common["token"] = this.getToken;
     axios.defaults.headers.common["Content-Type"] = "application/json";
     axios.defaults.baseURL = this.api + "api/";
-    if (this.getToken != undefined) {
-      axios
+    if (this.getToken != undefined && this.$route.fullPath != "/") {
+      /*axios
         .post("/token_control")
         .then((res) => {
           if (res.data.status == "error") {
             localStorage.clear();
-            window.location.href = "/";
+            //window.location.href = "/";
           }
         })
         .catch(() => {
           localStorage.clear();
-          window.location.href = "/";
-        });
+          //window.location.href = "/";
+        });*/
     }
   },
   watch: {

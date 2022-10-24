@@ -85,13 +85,12 @@
           size="large"
           class="btn btn-outline-warning my-2"
           @click="ekle_state = true"
-          v-else-if="!my_record_state && getToken && activity.status_record == '1'"
+          v-else-if="!my_record_state && getToken && activity.status_record == '1' && !limit_state"
         >
           Etkinliğe Katıl
         </button>
-        <button size="large" class="d-none btn btn-outline-danger my-2">Kotamız dolmuştur</button>
+        <button v-if="limit_state && !countState" size="large" class="btn btn-outline-danger my-2">Kotamız dolmuştur</button>
       </div>
-
       <p v-html="activity.content"></p>
     </div>
     <div class="container mb-5" v-loading="load">
@@ -117,9 +116,19 @@
       </template>
     </div>
     <login :loginState="loginState"></login>
-    <activity-record :visible="ekle_state" @visible="ekle_state = $event" :activity="activity" />
+    <activity-record
+      :visible="ekle_state"
+      @visible="ekle_state = $event"
+      :activity="activity"
+      @limitState="limit_state = $event"
+    />
 
-    <activity-record-edit :visible="guncelle_state" @visible="guncelle_state = $event" :activity="activity" />
+    <activity-record-edit
+      @countState="countState = $event"
+      :visible="guncelle_state"
+      @visible="guncelle_state = $event"
+      :activity="activity"
+    />
   </div>
 </template>
 
@@ -155,6 +164,8 @@ export default {
       ekle_state: false,
       ekle_buton_state: true,
       guncelle_buton_state: true,
+      limit_state: false,
+      countState: false,
     };
   },
   computed: {
