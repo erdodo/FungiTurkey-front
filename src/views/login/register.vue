@@ -1,5 +1,6 @@
 <template>
   <div>
+
     <el-dialog
       v-model="state"
       title="Üye Ol"
@@ -11,6 +12,7 @@
       <div class="row">
         <div class="col-12 col-lg-6" v-for="r in registerData" :key="r">
           <label class="mt-2 mb-0">{{ r.display }} :</label>
+
           <el-input
             v-if="r.name == 'phone'"
             v-mask="'+90(###) ### ## ##'"
