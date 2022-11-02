@@ -147,7 +147,15 @@ export default {
     },
     handleDateClick: function (arg) {
       this.tarih = arg.dateStr;
-      this.activityFeedback = true;
+      if (this.getProfile?.id != undefined) {
+        this.activityFeedback = true;
+      } else {
+        ElNotification({
+          title: "Dikkat",
+          message: "Geri bildirim göndermek için giriş yapmalısınız!",
+          type: "info",
+        });
+      }
     },
     newFeedback() {
       const params = {
