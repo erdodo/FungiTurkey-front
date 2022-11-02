@@ -27,6 +27,14 @@ import { VueperSlides, VueperSlide } from "vueperslides";
 import "vueperslides/dist/vueperslides.css";
 import axios from "axios";
 export default {
+  metaInfo: {
+    title: "Ana Sayfa",
+    titleTemplate: "Ana Sayfa",
+    htmlAttrs: {
+      lang: "tr",
+      amp: true,
+    },
+  },
   components: { VueperSlides, VueperSlide },
   data() {
     return {
@@ -40,13 +48,18 @@ export default {
   },
   methods: {
     getData() {
+      this.load = true;
       let params = {
         filter: {
           status: 1,
         },
+        order: {
+          name: "id",
+          type: "DESC",
+        },
       };
       axios
-        .post("fungitu2_fungiturkey/Slider", params)
+        .post(this.fungi + "/Slider", params)
         .then((response) => {
           this.slides = response.data.data;
           this.load = false;

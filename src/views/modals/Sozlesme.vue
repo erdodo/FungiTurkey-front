@@ -1,5 +1,5 @@
 <template>
-  <el-dialog v-model="state" title="Sözleşme" width="50%" :before-close="handleClose">
+  <el-dialog v-model="state" title="Sözleşme" width="400px" :before-close="handleClose">
     <div style="word-break: normal" v-html="sozlesme"></div>
     <template #footer>
       <span class="dialog-footer">

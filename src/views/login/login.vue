@@ -2,11 +2,18 @@
   <div>
     <el-dialog v-model="state" title="Giriş Yap" v-loading="load" width="400px" :before-close="handleClose" draggable>
       <label for="">Eposta:</label>
-      <el-input v-model="email" placeholder="Eposta adresiniz" size="large"></el-input>
+      <el-input v-model="email" placeholder="Eposta adresiniz" @keypress.enter="giris()" size="large"></el-input>
       <label for="" class="text-danger">{{ err }}</label>
       <br />
       <label class="mt-3" for="">Şifre:</label>
-      <el-input v-model="password" type="password" size="large" placeholder="Şifreniz" show-password></el-input>
+      <el-input
+        v-model="password"
+        type="password"
+        @keypress.enter="giris()"
+        size="large"
+        placeholder="Şifreniz"
+        show-password
+      ></el-input>
       <span @click="forgetstate = true" class="cursor-pointer">Şifremi unuttum </span>
       <template #footer>
         <span class="dialog-footer">
@@ -59,6 +66,7 @@ export default {
             axios.defaults.headers.common["token"] = res.data.token;
             axios.post("/profile").then((res2) => {
               this.$store.commit("setProfile", JSON.stringify(res2.data.data));
+              window.location.reload();
             });
           } else {
             ElNotification({

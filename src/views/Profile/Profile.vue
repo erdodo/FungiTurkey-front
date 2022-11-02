@@ -54,6 +54,7 @@
               :placeholder="c.display"
               class="form-control"
             />
+
             <input
               v-else-if="c.type == 'datetime'"
               type="datetime-local"
@@ -117,10 +118,15 @@ export default {
         },
       };
       axios
-        .post("/fungitu2_Simple/users/" + this.getProfile.id + "/edit", params)
+        .post(this.simple + "/users/" + this.getProfile.id + "/edit", params)
         .then((res) => {
           this.columns = res.data.columns;
           this.params = res.data.data;
+          for (const clm of Object.values(this.columns)) {
+            if (clm.type == "tinyint" || clm.type == "bit") {
+              this.params[clm.name] = this.params[clm.name] == "1" ? true : false;
+            }
+          }
         })
         .finally(() => {
           this.load = false;
@@ -129,11 +135,12 @@ export default {
     save() {
       this.load = true;
       const formData = new FormData();
-
+      let form = false;
       for (const [key, val] of Object.entries(this.columns)) {
         if (val.type == "file") {
           if (this.$refs.image?.[0]?.files[0] != undefined) {
             formData.append(key, this.$refs.image?.[0]?.files[0]);
+            form = true;
           } else {
             formData.append(key, this.params[key] == undefined ? "" : this.params[key]);
           }
@@ -144,7 +151,7 @@ export default {
         }
       }
       axios
-        .post("/fungitu2_Simple/users/" + this.getProfile.id + "/update", formData)
+        .post(this.simple + "/users/" + this.getProfile.id + "/update", form == true ? formData : this.params)
         .then((res) => {
           if (res.data.status == "success") {
             ElNotification({

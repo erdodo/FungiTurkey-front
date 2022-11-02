@@ -17,7 +17,7 @@
     <div class="container" v-loading="load" style="min-height: 300px">
       <div class="row">
         <template v-for="(a, key) in galery" :key="key">
-          <div class="col-12 col-sm-6 col-md-4 col-xl-3">
+          <div class="col-12 col-sm-6 col-md-4 col-xl-3 mt-2">
             <div class="p-2 text-center">
               <el-image
                 :src="ImgBase + a.image"
@@ -36,6 +36,18 @@
             </div>
           </div>
         </template>
+
+        <div class="col-12 mt-4">
+          <div class="w-100 d-flex justify-content-center">
+            <el-pagination
+              :page-size="limit"
+              :pager-count="3"
+              @current-change="setPage($event)"
+              layout="prev, pager, next"
+              :total="count"
+            />
+          </div>
+        </div>
       </div>
     </div>
     <galery v-if="modalData" v-model="modalData" :selectedImage="selectedImage" :data="galery"></galery>
@@ -46,6 +58,14 @@
 import axios from "axios";
 import Galery from "./modals/Galery.vue";
 export default {
+  metaInfo: {
+    title: "Galeri",
+    titleTemplate: "Mantar Galerimiz",
+    htmlAttrs: {
+      lang: "tr",
+      amp: true,
+    },
+  },
   components: { Galery },
   data() {
     return {
@@ -53,6 +73,9 @@ export default {
       modalData: false,
       load: true,
       selectedImage: 0,
+      count: 0,
+      limit: 6,
+      page: 1,
     };
   },
   mounted() {
@@ -60,16 +83,27 @@ export default {
   },
   methods: {
     getData() {
+      this.load = true;
       const params = {
+        limit: this.limit,
+        page: this.page,
         filter: {
           status: 1,
         },
+        order: {
+          name: "id",
+          type: "DESC",
+        },
       };
-      this.load = true;
-      axios.post("fungitu2_fungiturkey/Galery", params).then((response) => {
+      axios.post(this.fungi + "/Galery", params).then((response) => {
         this.galery = response.data.data;
+        this.count = response.data.count;
         this.load = false;
       });
+    },
+    setPage(e) {
+      this.page = e;
+      this.getData();
     },
   },
 };

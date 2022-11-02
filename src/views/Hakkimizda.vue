@@ -34,6 +34,15 @@
 <script>
 import axios from "axios";
 export default {
+  metaInfo: {
+    title: "Hakkımızda",
+    titleTemplate:
+      "Fungi Turkey 2018 yılında mantar türlerini topluma tanıtabilmek ve bilinçli bir şekilde mantar avcılığı yapabilmek adına Ömer Üngör tarafından kurulmuştur. Sosyal medya üzerinden yaptığımız detaylı tür tanımlamaları, online mantar eğitimleri, saha eğitimleri, etkinlikler ve mantar gastronomisi etkinlikleriyle bu alanda Türkiye'de ilkleri gerçekleştirmiştir. Birbirinden değerli katılımcılara sahip Fungi Turkey topluluğu her geçen gün büyüyerek ilerlemeye devam ediyor.",
+    htmlAttrs: {
+      lang: "tr",
+      amp: true,
+    },
+  },
   data() {
     return {
       about1: {},
@@ -47,9 +56,9 @@ export default {
   methods: {
     getData() {
       this.load = true;
-      axios.post("fungitu2_fungiturkey/About/1/get").then((response) => {
+      axios.post(this.fungi + "/About/1/get").then((response) => {
         this.about1 = response.data.data;
-        axios.post("fungitu2_fungiturkey/About/2/get").then((res) => {
+        axios.post(this.fungi + "/About/2/get").then((res) => {
           this.about2 = res.data.data;
           this.load = false;
         });

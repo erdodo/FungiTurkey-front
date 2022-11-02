@@ -20,8 +20,7 @@
           <div class="col-12">
             <div class="p-2 mt-2 card">
               <div class="row">
-                <div class="col-12 col-md-8">
-                  <template> {{ getActivity(a.activity_id) }} </template>
+                <div class="col-12 col-lg-7">
                   <div class="d-flex align-items-center h-100 flex-wrap justify-content-start justify-content-md-left">
                     <el-image :src="ImgBase + activities[a.activity_id]?.image" style="height: 130px">
                       <template #placeholder>
@@ -29,18 +28,34 @@
                       </template>
                     </el-image>
                     <div class="mx-1">
-                      <h5>{{ activities[a.activity_id]?.title }}</h5>
-                      <p>
-                        Kordinatör: <a class="text-warning ml-2"> {{ activities[a.activity_id]?.director }} </a>
+                      <h5 class="text-wrap">{{ activities[a.activity_id]?.title }}</h5>
+                      <p class="my-0">
+                        Koordinatör: <a class="text-warning ml-2"> {{ activities[a.activity_id]?.director }} </a>
                       </p>
-                      <p>
+                      <p class="text-nowrap">
                         Toplam Ücret:
-                        <a class="text-warning ml-2"> {{ activities[a.activity_id]?.price * a.people_count }} TL</a>
+                        <a class="text-warning ml-2">
+                          <oda class="text-dark" v-if="activities[a.activity_id]?.room_status == 1 && a.room_id != null">
+                            {{ activities[a.activity_id]?.price * a.people_count }} TL (Etkinlik) +
+                            {{ odalar[a.room_id]["price"] }} TL (Oda) <br />
+                            <span class="text-warning"
+                              >Genel Toplam:
+                              {{
+                                parseFloat(activities[a.activity_id]?.price * a.people_count) +
+                                parseFloat(odalar[a.room_id]["price"])
+                              }}TL
+                            </span>
+                          </oda>
+                          <cadir v-else-if="activities[a.activity_id]?.room_status == 1 && a.room_id == null">
+                            {{ activities[a.activity_id]?.cadir_fiyat * a.people_count }} TL
+                          </cadir>
+                          <div v-else>{{ activities[a.activity_id]?.price * a.people_count }} TL</div>
+                        </a>
                       </p>
                     </div>
                   </div>
                 </div>
-                <div class="col-12 col-md-4">
+                <div class="col-12 col-lg-5">
                   <div class="d-flex flex-column text-center text-md-left">
                     <h3 class="mt-3">{{ a.name }} {{ a.surname }}</h3>
                     <h5>
@@ -49,9 +64,31 @@
                     <p>
                       Kayıt tarihi: <a class="text-warning"> {{ dateTimeParser(a.added_date) }}</a>
                     </p>
+                    <div class="w-100 mb-2">
+                      <div v-if="a.status == 1 && a.price_status != 1">
+                        IBAN: <a class="text-dark"> {{ activities[a.activity_id].iban }}</a>
+                      </div>
+                      <div v-if="a.price_status == 1" v-html="activities[a.activity_id].location_url"></div>
+                    </div>
                     <div class="d-flex">
-                      <el-button type="primary" v-if="a.price_status != 1" @click="(record = a), (editStatus = true)"
+                      <el-button
+                        type="primary"
+                        v-if="a.price_status != 1 && activities[a.activity_id]?.room_status == 0"
+                        @click="(record = a), (editStatus = true)"
                         >Düzenle</el-button
+                      >
+                      <el-button
+                        type="default"
+                        v-if="activities[a.activity_id]?.room_status == 1 && a.room_id != null"
+                        @click="(room = a.room_id), (roomStatus = true)"
+                        >Oda Detayları</el-button
+                      >
+                      <el-tag
+                        v-if="activities[a.activity_id]?.room_status == 1 && a.room_id == null"
+                        class="mx-1"
+                        size="large"
+                        type="info"
+                        >Çadır</el-tag
                       >
                       <el-tag class="mx-1" size="large" type="success" v-if="a.price_status == 1">Ödeme alındı</el-tag>
                       <el-tag class="mx-1" size="large" type="danger" v-else>Ödeme alınmadı</el-tag>
@@ -59,13 +96,14 @@
                         <el-tag class="mx-1" size="large" type="success" v-if="a.status == 1">Onaylı</el-tag>
                         <el-tag class="mx-1" size="large" type="danger" v-else>Onay Bekliyor</el-tag>
                       </div>
+
                       <el-popconfirm
                         confirm-button-text="Evet"
                         cancel-button-text="Hayır"
                         :icon="InfoFilled"
                         icon-color="#626AEF"
                         title="Silmek istediğinize emin misiniz?"
-                        @confirm="kayitSil(a.id)"
+                        @confirm="kayitSil(a)"
                         @cancel="cancelEvent"
                         v-if="a.price_status != 1"
                       >
@@ -84,14 +122,12 @@
       </div>
     </div>
     <div>
+      <room :dialogVisible="roomStatus" @state="roomStatus = $event" :room="room"></room>
       <activity-record-edit
-        :record="record"
         :visible="editStatus"
-        :benim="record.people_count"
-        :kota="activities[record.activity_id]?.quota"
-        :kayit="activityRecordsCount[record.activity_id]"
-        @state="getData(), (editStatus = false)"
-      ></activity-record-edit>
+        @visible="editStatus = $event"
+        :activity="activities[record.activity_id]"
+      />
     </div>
   </div>
 </template>
@@ -103,15 +139,19 @@ import dateTimeParser from "@/hooks/dateTimeParser";
 import ActivityRecordEdit from "../modals/ActivityRecordEdit.vue";
 import { InfoFilled } from "@element-plus/icons-vue";
 import { ElNotification } from "element-plus";
+import Room from "../modals/Room.vue";
 
 export default {
-  components: { ActivityRecordEdit },
+  components: { ActivityRecordEdit, Room },
   data() {
     return {
       InfoFilled,
       activityRecords: [],
       activities: {},
       editStatus: false,
+      roomStatus: false,
+      room: null,
+      odalar: {},
       record: {},
       load: false,
       activityRecordsCount: {},
@@ -130,15 +170,23 @@ export default {
         filter: {
           own_id: this.getProfile.id,
         },
+        order: {
+          name: "id",
+          type: "DESC",
+        },
       };
       axios
-        .post("fungitu2_fungiturkey/ActivityRecord", params)
+        .post(this.fungi + "/ActivityRecord", params)
         .then((response) => {
           this.activityRecords = response.data.data;
           for (const val of Object.values(this.activityRecords)) {
             if (this.activityRecordsCount[val.activity_id] == undefined) {
               this.activityRecordsCount[val.activity_id] = 0;
             }
+            if (val.room_id != null) {
+              this.getRoom(val.room_id);
+            }
+            this.getActivity(val.activity_id);
             this.getLimit(val.activity_id);
           }
         })
@@ -150,7 +198,7 @@ export default {
       if (this.activities[id] == undefined) {
         this.load = true;
         axios
-          .post("fungitu2_fungiturkey/Activity/" + id + "/get")
+          .post(this.fungi + "/Activity/" + id + "/get")
           .then((response) => {
             this.activities[id] = response.data.data;
           })
@@ -166,7 +214,7 @@ export default {
           status: "1",
         },
       };
-      axios.post("fungitu2_fungiturkey/ActivityRecord", params).then((response) => {
+      axios.post(this.fungi + "/ActivityRecord", params).then((response) => {
         let activityRecords = response.data.data;
         this.activityRecordsCount[id] = 0;
         for (const val of Object.values(activityRecords)) {
@@ -178,9 +226,18 @@ export default {
         this.load = false;
       });
     },
-    kayitSil(id) {
+    kayitSil(val) {
+      console.log(this.activities[val.activity_id]);
+      if (this.activities[val.activity_id].room_status == 1) {
+        const params = {
+          rent_status: 0,
+        };
+        axios.post(this.fungi + "/ActivityRoom/" + val.room_id + "/update", params).finally(() => {
+          this.load = false;
+        });
+      }
       axios
-        .post("fungitu2_fungiturkey/ActivityRecord/" + id + "/delete")
+        .post(this.fungi + "/ActivityRecord/" + val.id + "/delete")
         .then((res) => {
           if (res.data.status == "success") {
             ElNotification({
@@ -194,6 +251,15 @@ export default {
           this.getData();
           this.load = false;
         });
+    },
+    getRoom(id) {
+      this.load = true;
+
+      axios.post(this.fungi + "/ActivityRoom/" + id + "/get").then((res) => {
+        this.odalar[id] = res.data.data;
+
+        this.load = false;
+      });
     },
     dateTimeParser,
   },
