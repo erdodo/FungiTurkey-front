@@ -1,31 +1,33 @@
 <template>
   <div>
-    <el-dialog v-model="state" title="Üye Ol" v-loading="load" width="400px" top="5vh" :before-close="handleClose">
-      <div v-for="r in registerData" :key="r">
-        <label class="mt-2 mb-0">{{ r.display }}:</label>
-        <el-input
-          v-if="r.name == 'phone'"
-          v-mask="'+90(###) ### ## ##'"
-          v-model="params[r.name]"
-          size="large"
-          :placeholder="r.display"
-        ></el-input>
-        <el-input
-          v-else-if="r.name == 'password'"
-          type="password"
-          v-model="params[r.name]"
-          size="large"
-          :placeholder="r.display"
-        ></el-input>
-        <el-input
-          v-else-if="r.name == 'email'"
-          @keyup="validateEmail()"
-          v-model="params[r.name]"
-          size="large"
-          :placeholder="r.display"
-        ></el-input>
-        <el-input v-else v-model="params[r.name]" size="large" :placeholder="r.display"></el-input>
-        <label class="text-danger"> {{ msg[r.name] }} </label>
+    <el-dialog v-model="state" title="Üye Ol" v-loading="load" width="450px" top="5vh" :before-close="handleClose">
+      <div class="row">
+        <div v-for="r in registerData" :key="r" class="col-12 col-lg-6">
+          <label class="mt-2 mb-0">{{ r.display }}:</label>
+          <el-input
+            v-if="r.name == 'phone'"
+            v-mask="'+90(###) ### ## ##'"
+            v-model="params[r.name]"
+            size="large"
+            :placeholder="r.display"
+          ></el-input>
+          <el-input
+            v-else-if="r.name == 'password'"
+            type="password"
+            v-model="params[r.name]"
+            size="large"
+            :placeholder="r.display"
+          ></el-input>
+          <el-input
+            v-else-if="r.name == 'email'"
+            @keyup="validateEmail()"
+            v-model="params[r.name]"
+            size="large"
+            :placeholder="r.display"
+          ></el-input>
+          <el-input v-else v-model="params[r.name]" size="large" :placeholder="r.display"></el-input>
+          <label class="text-danger"> {{ msg[r.name] }} </label>
+        </div>
       </div>
 
       <template #footer>

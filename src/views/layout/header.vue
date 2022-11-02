@@ -115,6 +115,10 @@ export default {
         filter: {
           status: "1",
         },
+        order: {
+          name: "id",
+          type: "DESC",
+        },
       };
       axios.defaults.baseURL = "https://api.fungiturkey.org/api/";
       axios.defaults.headers.common["token"] = this.getToken;
