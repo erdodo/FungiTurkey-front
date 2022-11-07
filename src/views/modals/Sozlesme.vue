@@ -23,7 +23,7 @@ export default {
     dialogVisible() {
       if (this.dialogVisible == true) {
         this.state = this.dialogVisible;
-        axios.post("/fungitu2_fungiturkey/Settings/1/get").then((res) => {
+        axios.post(this.fungi + "/Settings/1/get").then((res) => {
           this.sozlesme = res.data.data.sozlesme;
         });
       } else {
@@ -38,7 +38,7 @@ export default {
     },
   },
   mounted() {
-    axios.post("/fungitu2_fungiturkey/Settings/1/get").then((res) => {
+    axios.post(this.fungi + "/Settings/1/get").then((res) => {
       this.sozlesme = res.data.data.sozlesme;
     });
   },

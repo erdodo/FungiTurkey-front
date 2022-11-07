@@ -126,7 +126,7 @@ export default {
       });
     },
     getUser(id) {
-      axios.post("fungitu2_Simple/users/" + id + "/get").then((response) => {
+      axios.post(this.simple + "/users/" + id + "/get").then((response) => {
         this.user = response.data.data;
       });
     },

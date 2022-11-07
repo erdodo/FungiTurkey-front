@@ -7,13 +7,21 @@ import ElementPlus from "element-plus";
 import "element-plus/dist/index.css";
 
 let app = createApp(App);
-let api = "https://api2.fungiturkey.org/";
-//app.config.globalProperties.ImgBase = "http://erdodo.serveftp.com/fungitu2_Simple/uploads/";
-//app.config.globalProperties.ImgBase = "http://localhost:8888/uploads/";
-app.config.globalProperties.ImgBase = api + "uploads/";
-app.config.globalProperties.api = api;
-app.config.globalProperties.fungi = "fungitu2_test_fungiturkey";
-app.config.globalProperties.simple = "fungitu2_test_Simple";
+const mode = ""; //"test";
+if (mode == "test") {
+  let api = "https://api2.fungiturkey.org/";
+  app.config.globalProperties.fungi = "fungitu2_test_fungiturkey";
+  app.config.globalProperties.simple = "fungitu2_test_Simple";
+  app.config.globalProperties.ImgBase = api + "uploads/";
+  app.config.globalProperties.api = api;
+} else {
+  let api = "https://api.fungiturkey.org/";
+  app.config.globalProperties.fungi = "fungitu2_fungiturkey";
+  app.config.globalProperties.simple = "fungitu2_Simple";
+  app.config.globalProperties.ImgBase = api + "uploads/";
+  app.config.globalProperties.api = api;
+}
+
 app.use(store);
 app.use(router);
 app.use(ElementPlus);
