@@ -167,15 +167,12 @@ export default {
       }
     },
     cadir_limit() {
-      console.log("sadfdsfsfd12312312");
       this.limitReturn();
     },
     etk_limit() {
-      console.log("sadfdsfsfd12312312");
       this.limitReturn();
     },
     odalar() {
-      console.log("sadfdsfsfd12312312");
       this.limitReturn();
     },
   },
@@ -242,7 +239,7 @@ export default {
       }
     },
     kayit() {
-      if (this.sozlesme_state == true) {
+      if (this.sozlesme_state != true) {
         this.loading = true;
         if (this.oda_state == false) {
           const params = {
@@ -282,10 +279,10 @@ export default {
             this.islem_count += 1;
             axios.post(this.fungi + "/ActivityRecord/store", params).then((res) => {
               if (res.data.status == "success") {
-                this.islem_success += 1;
                 if (this.secilen.length > 0) {
                   this.odaKayit();
                 } else {
+                  this.islem_success += 1;
                   ElNotification({
                     title: "Başarılı",
                     message: "Kayıt başarıyla oluşturuldu.",
@@ -317,6 +314,7 @@ export default {
     },
     odaKayit() {
       for (const val of Object.values(this.secilen)) {
+        console.log(this.getProfile);
         const params = {
           activity_id: this.activity.id,
           email: this.getProfile.email,
@@ -336,7 +334,7 @@ export default {
               type: "success",
             });
             const oda = {
-              rent_status: true,
+              rent_status: "1",
               member_id: this.getProfile.id,
             };
             axios.post(this.fungi + "/ActivityRoom/" + val + "/update", oda).then((res) => {

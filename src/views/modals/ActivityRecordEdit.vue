@@ -176,8 +176,6 @@ export default {
       }
     },
     islem_success(val) {
-      console.log("islem_count", this.islem_count);
-      console.log("islem_success", this.islem_success);
       if (val == this.islem_count) {
         window.location.reload();
       }
@@ -224,10 +222,12 @@ export default {
         for (const val of Object.values(res.data.data)) {
           limit += parseFloat(val.people_count);
           this.my_records.push(val);
+
           if (val.status == "1") {
             this.etk_limit += parseFloat(val.people_count);
           }
         }
+        console.log(this.my_records);
         this.etk_count = limit;
         this.etk_limit += limit;
         this.loading = false;
@@ -262,6 +262,7 @@ export default {
           if (val.status == "1") {
             this.cadir_limit += parseFloat(val.people_count);
           }
+          console.log(this.my_records);
         }
         this.cadir_count = limit;
         this.cadir_limit += limit;
@@ -294,6 +295,7 @@ export default {
           this.odalarim.push(val.id);
           this.my_records.push(val);
         }
+        console.log(this.my_records);
         for (const odam of Object.values(this.odalarim)) {
           if (odam > 0) {
             const params3 = {
@@ -307,6 +309,7 @@ export default {
                 this.oda_records[odam] = val;
                 this.oda_count[odam] = parseInt(val.people_count);
               }
+              console.log("oda_records", this.oda_records);
             });
           }
         }
@@ -445,7 +448,11 @@ export default {
         else {
           //silinecek
           this.islem_count += 1;
-          axios.post(this.fungi + "/ActivityRecord/" + sil + "/delete").then((res) => {
+          console.log(
+            this.my_records.find((e) => e.id == sil),
+            this.my_records.find((e) => e.id == sil)["activity_id"]
+          );
+          axios.post(this.fungi + "/ActivityRecord/" + this.oda_records[sil]["id"] + "/delete").then((res) => {
             if (res.data.status == "success") {
               const oda = {
                 rent_status: false,
